@@ -750,15 +750,15 @@ const InformeDiario = ({ styles, tendencias }) => {
         </div>
       </div>
 
-      {/* Resumen de Totales Filtrados */}
-      {filtroAplicado && ventas.length > 0 && (
+      {/* Resumen de Totales */}
+      {ventas.length > 0 && (
         <div style={{
           backgroundColor: '#e9ecef',
           padding: '20px',
           borderRadius: '8px',
           marginTop: '30px'
         }}>
-          <h3 style={{ margin: '0 0 15px 0', color: '#495057' }}>💰 Resumen de Ventas Filtradas</h3>
+          <h3 style={{ margin: '0 0 15px 0', color: '#495057' }}>💰 Resumen de Ventas</h3>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '15px' }}>
             <div style={{ textAlign: 'center', padding: '15px', backgroundColor: 'white', borderRadius: '6px' }}>
               <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#28a745' }}>{ventas.length}</div>
