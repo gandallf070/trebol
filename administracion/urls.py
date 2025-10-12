@@ -5,6 +5,7 @@ from .views import (
     VentaViewSet, DetalleVentaViewSet, ReporteVentasView,
     UserRegistrationView, UserProfileView, ChangePasswordView,
     LogoutView, ProductoAgotadoViewSet, ProductoAgotadoReportePDFView,
+    VentasDelDiaView, UserViewSet,
     # Dashboard views
     DashboardTotalInventoryView, DashboardLowStockView, DashboardDailySalesView,
     DashboardSalesTrendView, DashboardCategoryDistributionView,
@@ -18,6 +19,7 @@ router.register(r'inventario/products', ProductoViewSet)
 router.register(r'sales', VentaViewSet)
 router.register(r'sales-details', DetalleVentaViewSet)
 router.register(r'productos-agotados', ProductoAgotadoViewSet)
+router.register(r'users', UserViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
@@ -36,5 +38,6 @@ urlpatterns = [
     path('reports/dashboard/top-products/', DashboardTopProductsView.as_view(), name='dashboard-top-products'),
     path('reports/dashboard/recent-sales/', DashboardRecentSalesView.as_view(), name='dashboard-recent-sales'),
     path('productos-agotados/generar-reporte-pdf/', ProductoAgotadoReportePDFView.as_view(), name='productos-agotados-pdf'),
+    path('ventas-del-dia/', VentasDelDiaView.as_view(), name='ventas-del-dia'),
     path('test-auth/', TestAuthView.as_view(), name='test-auth'),
 ]

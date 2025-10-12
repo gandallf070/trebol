@@ -25,7 +25,15 @@ const SaleDetail = ({ sale, onClose, styles }) => {
             <div style={styles.infoRow}>
               <span style={styles.label}>Fecha:</span>
               <span style={styles.value}>
-                {new Date(sale.fecha_venta).toLocaleDateString('es-ES')} {new Date(sale.fecha_venta).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
+                {(() => {
+                  const fecha = new Date(sale.fecha_venta);
+                  const dia = fecha.getDate().toString().padStart(2, '0');
+                  const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
+                  const anio = fecha.getFullYear();
+                  const hora = fecha.getHours().toString().padStart(2, '0');
+                  const minuto = fecha.getMinutes().toString().padStart(2, '0');
+                  return `${dia}/${mes}/${anio} ${hora}:${minuto}`;
+                })()}
               </span>
             </div>
             <div style={styles.infoRow}>

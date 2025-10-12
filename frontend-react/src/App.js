@@ -7,6 +7,7 @@ import LoginPage from './pages/LoginPage';
 import HomePage from './modules/home/pages/HomePage';
 import ClientsPage from './modules/clients/pages/ClientsPage';
 import ProductsPage from './modules/products/pages/ProductsPage';
+import ProductosAgotadosPage from './modules/productos-agotados/pages/ProductosAgotadosPage';
 import CategoriesPage from './modules/categories/pages/CategoriesPage';
 import SalesPage from './modules/sales/pages/SalesPage';
 import ReportsPage from './modules/reports/pages/ReportsPage';
@@ -25,6 +26,7 @@ function App() {
             <Route index element={<HomePage />} />
             <Route path="clientes" element={<ClientsPage />} />
             <Route path="inventario/productos" element={<ProductsPage />} />
+            <Route path="productos-agotados" element={<ProductosAgotadosPage />} />
             <Route path="inventario/categorias" element={<CategoriesPage />} />
             <Route path="ventas" element={<SalesPage />} />
             <Route path="reportes" element={<ReportsPage />} />

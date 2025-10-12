@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Limpiar Caché - Joyería Trebol</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .button {
+            background-color: #28a745;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+            transition: background-color 0.3s;
+        }
+        .button:hover {
+            background-color: #218838;
+        }
+        .button.secondary {
+            background-color: #6c757d;
+        }
+        .button.secondary:hover {
+            background-color: #5a6268;
+        }
+        .status {
+            margin: 20px 0;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧹 Limpiar Caché - Joyería Trebol</h1>
+        <p>Esta página te ayuda a limpiar el caché del navegador para asegurar que los cambios en el formato de fecha se apliquen correctamente.</p>
+
+        <div id="status" class="status"></div>
+
+        <button class="button" onclick="limpiarCache()">🗑️ Limpiar Caché Completo</button>
+        <button class="button secondary" onclick="recargarPagina()">🔄 Solo Recargar Página</button>
+        <button class="button secondary" onclick="irAAplicacion()">🏠 Ir a la Aplicación</button>
+
+        <h3>📋 Pasos realizados:</h3>
+        <ul>
+            <li>✅ Configuración regional cambiada a español (es-es)</li>
+            <li>✅ Zona horaria cambiada a America/La_Paz</li>
+            <li>✅ Formato de fecha corregido en componentes</li>
+            <li>✅ Base de datos limpiada completamente</li>
+            <li>⏳ Limpiar caché del navegador</li>
+        </ul>
+
+        <h3>📅 Formato de fecha esperado:</h3>
+        <p><strong>Antes:</strong> 10/12/2025 08:45 (mm/dd/aaaa) ❌</p>
+        <p><strong>Después:</strong> 12/10/2025 08:45 (dd/mm/aaaa) ✅</p>
+    </div>
+
+    <script>
+        function mostrarStatus(mensaje, tipo = 'info') {
+            const status = document.getElementById('status');
+            status.textContent = mensaje;
+            status.className = `status ${tipo}`;
+            status.style.display = 'block';
+        }
+
+        function limpiarCache() {
+            mostrarStatus('🧹 Limpiando caché del navegador...', 'info');
+
+            // Limpiar service workers y cache storage
+            if ('caches' in window) {
+                caches.keys().then(names => {
+                    return Promise.all(names.map(name => caches.delete(name)));
+                }).then(() => {
+                    mostrarStatus('✅ Caché limpiado exitosamente. Recargando página...', 'success');
+                    setTimeout(() => {
+                        window.location.reload(true);
+                    }, 2000);
+                }).catch(error => {
+                    mostrarStatus('⚠️ Error al limpiar caché: ' + error.message, 'info');
+                });
+            } else {
+                mostrarStatus('🔄 Service Workers no disponibles. Recargando página...', 'info');
+                setTimeout(() => {
+                    window.location.reload(true);
+                }, 1000);
+            }
+
+            // Limpiar localStorage y sessionStorage
+            try {
+                localStorage.clear();
+                sessionStorage.clear();
+            } catch (e) {
+                console.warn('Error al limpiar storage:', e);
+            }
+        }
+
+        function recargarPagina() {
+            mostrarStatus('🔄 Recargando página...', 'info');
+            window.location.reload(true);
+        }
+
+        function irAAplicacion() {
+            window.location.href = '/';
+        }
+
+        // Auto-ejecutar limpieza al cargar la página
+        window.addEventListener('load', () => {
+            mostrarStatus('💡 Página cargada. Haz clic en "Limpiar Caché Completo" para aplicar los cambios.', 'info');
+        });
+    </script>
+</body>
+</html>

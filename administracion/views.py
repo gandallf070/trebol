@@ -1,15 +1,20 @@
 from rest_framework import viewsets, filters, status, generics
+from rest_framework import serializers
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.decorators import action
 from rest_framework.views import APIView
 from django.db import transaction
-from django.db.models import Q, Sum
+from django.db.models import Q, Sum, Avg
 from django.http import HttpResponse
 import csv
 import io
-from datetime import datetime
+from datetime import datetime, timedelta
+from reportlab.lib.pagesizes import A4
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib import colors
 from .models import Cliente, Categoria, Producto, Venta, DetalleVenta, CustomUser, ProductoAgotado
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
 from .serializers import (
@@ -93,6 +98,9 @@ class ProductoViewSet(viewsets.ModelViewSet):
 class VentaViewSet(viewsets.ModelViewSet):
     queryset = Venta.objects.all().prefetch_related('detalles', 'cliente', 'vendedor')
     permission_classes = [IsAuthenticated, IsAdminUser | IsVendedorUser]
+    filter_backends = [filters.OrderingFilter]
+    ordering_fields = ['fecha_venta', 'total', 'cliente']
+    ordering = ['-fecha_venta']
 
     def get_serializer_class(self):
         if self.action == 'create':
@@ -103,6 +111,40 @@ class VentaViewSet(viewsets.ModelViewSet):
         context = super().get_serializer_context()
         context['request'] = self.request
         return context
+
+    def get_queryset(self):
+        queryset = Venta.objects.all().prefetch_related('detalles', 'cliente', 'vendedor')
+
+        # Aplicar filtros de fecha si están presentes
+        fecha_inicio = self.request.query_params.get('fecha_inicio')
+        fecha_fin = self.request.query_params.get('fecha_fin')
+
+        if fecha_inicio:
+            try:
+                from datetime import datetime
+                fecha_inicio_obj = datetime.strptime(fecha_inicio, '%Y-%m-%d')
+                queryset = queryset.filter(fecha_venta__date__gte=fecha_inicio_obj.date())
+            except ValueError:
+                pass  # Ignorar formato inválido
+
+        if fecha_fin:
+            try:
+                from datetime import datetime
+                fecha_fin_obj = datetime.strptime(fecha_fin, '%Y-%m-%d')
+                queryset = queryset.filter(fecha_venta__date__lte=fecha_fin_obj.date())
+            except ValueError:
+                pass  # Ignorar formato inválido
+
+        # Aplicar filtro por ID si está presente
+        venta_id = self.request.query_params.get('venta_id')
+        if venta_id:
+            try:
+                venta_id_int = int(venta_id)
+                queryset = queryset.filter(id=venta_id_int)
+            except ValueError:
+                pass  # Ignorar ID inválido
+
+        return queryset
 
     def list(self, request, *args, **kwargs):
         # Permitir GET para consultar ventas
@@ -210,8 +252,8 @@ class DetalleVentaViewSet(viewsets.ReadOnlyModelViewSet):
 
 @extend_schema(
     parameters=[
-        OpenApiParameter(name='fecha_inicio', type=str, description='Fecha de inicio (YYYY-MM-DD)', required=False),
-        OpenApiParameter(name='fecha_fin', type=str, description='Fecha de fin (YYYY-MM-DD)', required=False),
+        OpenApiParameter(name='fecha_inicio', type=str, description='Fecha de inicio (DD/MM/YYYY)', required=False),
+        OpenApiParameter(name='fecha_fin', type=str, description='Fecha de fin (DD/MM/YYYY)', required=False),
         OpenApiParameter(name='formato', type=str, description='Formato del reporte (csv o pdf)', required=False, enum=['csv', 'pdf']),
     ],
     responses={200: {'content': {'text/csv': {'schema': {'type': 'string', 'format': 'binary'}}, 'application/pdf': {'schema': {'type': 'string', 'format': 'binary'}}}}},
@@ -236,21 +278,21 @@ class ReporteVentasView(APIView):
         filtros = Q()
         if fecha_inicio:
             try:
-                fecha_inicio_obj = datetime.strptime(fecha_inicio, '%Y-%m-%d')
+                fecha_inicio_obj = datetime.strptime(fecha_inicio, '%d/%m/%Y')
                 filtros &= Q(fecha_venta__date__gte=fecha_inicio_obj.date())
             except ValueError:
                 return Response(
-                    {"error": "Formato de fecha_inicio inválido. Use YYYY-MM-DD"},
+                    {"error": "Formato de fecha_inicio inválido. Use DD/MM/YYYY"},
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
         if fecha_fin:
             try:
-                fecha_fin_obj = datetime.strptime(fecha_fin, '%Y-%m-%d')
+                fecha_fin_obj = datetime.strptime(fecha_fin, '%d/%m/%Y')
                 filtros &= Q(fecha_venta__date__lte=fecha_fin_obj.date())
             except ValueError:
                 return Response(
-                    {"error": "Formato de fecha_fin inválido. Use YYYY-MM-DD"},
+                    {"error": "Formato de fecha_fin inválido. Use DD/MM/YYYY"},
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
@@ -509,6 +551,79 @@ class DashboardRecentSalesView(APIView):
         return Response(sales_data)
 
 
+class VentasDelDiaView(APIView):
+    """Vista para obtener ventas del día actual con filtros opcionales"""
+    permission_classes = [IsAuthenticated, IsAdminUser | IsVendedorUser]
+
+    def get(self, request):
+        # Obtener fecha del día actual
+        fecha_hoy = request.query_params.get('fecha')
+        if not fecha_hoy:
+            from datetime import date
+            fecha_hoy = date.today().isoformat()
+
+        # Obtener filtros opcionales
+        usuario_id = request.query_params.get('usuario_id')
+
+        try:
+            from datetime import datetime, date
+            fecha_actual = datetime.fromisoformat(fecha_hoy).date()
+            fecha_siguiente = fecha_actual + timedelta(days=1)
+
+            # Construir queryset base
+            queryset = Venta.objects.filter(
+                fecha_venta__date__gte=fecha_actual,
+                fecha_venta__date__lt=fecha_siguiente
+            ).select_related('cliente', 'vendedor').prefetch_related('detalles')
+
+            # Aplicar filtro por usuario si está presente
+            if usuario_id:
+                queryset = queryset.filter(vendedor_id=usuario_id)
+
+            # Ejecutar consulta
+            ventas = queryset.order_by('-fecha_venta')
+
+            # Serializar datos
+            ventas_data = []
+            for venta in ventas:
+                productos = []
+                for detalle in venta.detalles.all():
+                    productos.append({
+                        'producto': {
+                            'id': detalle.producto.id,
+                            'nombre': detalle.producto.nombre
+                        },
+                        'cantidad': detalle.cantidad,
+                        'precio_unitario': str(detalle.precio_unitario),
+                        'subtotal': str(detalle.subtotal)
+                    })
+
+                ventas_data.append({
+                    'id': venta.id,
+                    'cliente': {
+                        'id': venta.cliente.id,
+                        'nombre': venta.cliente.nombre,
+                        'apellido': venta.cliente.apellido
+                    } if venta.cliente else None,
+                    'vendedor': venta.vendedor.username if venta.vendedor else 'N/A',
+                    'fecha_venta': venta.fecha_venta.isoformat(),
+                    'total': str(venta.total),
+                    'detalles': productos
+                })
+
+            return Response({
+                'results': ventas_data,
+                'count': len(ventas_data),
+                'fecha': fecha_hoy
+            })
+
+        except ValueError:
+            return Response(
+                {"error": "Formato de fecha inválido. Use YYYY-MM-DD"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+
 class ProductoAgotadoViewSet(viewsets.ModelViewSet):
     """ViewSet para productos agotados"""
     queryset = ProductoAgotado.objects.all().select_related('producto', 'producto__categoria')
@@ -648,6 +763,16 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
         return self.request.user
 
 
+class UserViewSet(viewsets.ReadOnlyModelViewSet):
+    """ViewSet para usuarios - solo lectura para el selector de informes"""
+    queryset = CustomUser.objects.filter(is_active=True)
+    serializer_class = UserProfileSerializer
+    permission_classes = [IsAuthenticated, IsAdminUser | IsVendedorUser]
+    filter_backends = [filters.OrderingFilter]
+    ordering_fields = ['username', 'first_name', 'last_name', 'role']
+    ordering = ['username']
+
+
 class ChangePasswordView(generics.UpdateAPIView):
     """Vista para cambiar la contraseña"""
     serializer_class = ChangePasswordSerializer
@@ -694,10 +819,6 @@ class LogoutView(APIView):
 
     def generar_pdf(self, ventas):
         """Genera archivo PDF con el reporte de ventas"""
-        from reportlab.lib.pagesizes import letter, A4
-        from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
-        from reportlab.lib.styles import getSampleStyleSheet
-        from reportlab.lib import colors
 
         # Crear buffer para el PDF
         buffer = io.BytesIO()

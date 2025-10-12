@@ -1,10 +1,15 @@
 import React from 'react';
 
-const SaleList = ({ sales, handleViewDetail, styles }) => {
+const SaleList = ({ sales, handleViewDetail, styles, isSearchResult = false }) => {
   if (!sales || sales.length === 0) {
     return (
       <div style={styles.noDataContainer}>
-        <p style={styles.noDataText}>No hay ventas registradas.</p>
+        <p style={styles.noDataText}>
+          {isSearchResult
+            ? "No se encontraron ventas con el ID especificado."
+            : "No hay ventas registradas."
+          }
+        </p>
       </div>
     );
   }
@@ -34,7 +39,15 @@ const SaleList = ({ sales, handleViewDetail, styles }) => {
                 {sale.vendedor || 'Vendedor no encontrado'}
               </td>
               <td style={styles.td}>
-                {new Date(sale.fecha_venta).toLocaleDateString('es-ES')} {new Date(sale.fecha_venta).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
+                {(() => {
+                  const fecha = new Date(sale.fecha_venta);
+                  const dia = fecha.getDate().toString().padStart(2, '0');
+                  const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
+                  const anio = fecha.getFullYear();
+                  const hora = fecha.getHours().toString().padStart(2, '0');
+                  const minuto = fecha.getMinutes().toString().padStart(2, '0');
+                  return `${dia}/${mes}/${anio} ${hora}:${minuto}`;
+                })()}
               </td>
               <td style={styles.td}>${sale.total}</td>
               <td style={styles.td}>

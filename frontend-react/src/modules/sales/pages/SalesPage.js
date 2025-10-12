@@ -17,6 +17,9 @@ const SalesPage = () => {
   const [activeSaleSection, setActiveSaleSection] = useState('sale_list');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -159,6 +162,69 @@ const SalesPage = () => {
     }
   };
 
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1); // Reset a primera página cuando se busca
+  };
+
+  const handleSearchById = async () => {
+    // Limpiar errores anteriores
+    setError(null);
+
+    if (!searchTerm.trim()) {
+      setError('Debe ingresar un ID de venta para buscar.');
+      setSearchResults([]);
+      return;
+    }
+
+    // Validar que sea un número
+    const saleId = parseInt(searchTerm.trim());
+    if (isNaN(saleId) || saleId <= 0) {
+      setError('Debe ingresar un ID de venta válido (número positivo).');
+      setSearchResults([]);
+      return;
+    }
+
+    setIsSearching(true);
+
+    try {
+      const response = await api.get('/sales/', {
+        params: { venta_id: saleId }
+      });
+      setSearchResults(response.data.results || []);
+      if (response.data.results && response.data.results.length === 0) {
+        setError(`No se encontró ninguna venta con el ID #${saleId}.`);
+      }
+    } catch (err) {
+      if (err.response?.status === 404) {
+        setError(`No se encontró ninguna venta con el ID #${saleId}.`);
+        setSearchResults([]);
+      } else {
+        setError('Error al buscar la venta por ID.');
+        console.error('Error al buscar venta:', err);
+      }
+      setSearchResults([]);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const clearSearch = () => {
+    setSearchTerm('');
+    setSearchResults([]);
+    setError(null);
+    // Recargar la lista completa solo si no estamos ya en la vista de lista completa
+    if (searchResults.length > 0) {
+      fetchSales();
+    }
+  };
+
+  const handleSearchInputKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleSearchById();
+    }
+  };
+
   const renderSaleSection = () => {
     switch (activeSaleSection) {
       case 'new_sale':
@@ -174,28 +240,97 @@ const SalesPage = () => {
       case 'sale_list':
         return (
           <div style={styles.listCard}>
-            <SaleList
-              sales={sales}
-              handleViewDetail={handleViewSaleDetail}
-              styles={styles}
-            />
-            <div style={styles.paginationContainer}>
-              <button
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
-                style={styles.paginationButton}
-              >
-                Anterior
-              </button>
-              <span style={styles.paginationText}>Página {currentPage} de {totalPages}</span>
-              <button
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                style={styles.paginationButton}
-              >
-                Siguiente
-              </button>
+            {/* Sección de búsqueda por ID */}
+            <div style={styles.searchSection}>
+              <h3 style={styles.searchTitle}>🔍 Buscar Venta por ID</h3>
+              <div style={styles.searchControls}>
+                <input
+                  type="text"
+                  placeholder="Ingrese el ID de la venta (ej: 25)..."
+                  value={searchTerm}
+                  onChange={handleSearchChange}
+                  onKeyPress={handleSearchInputKeyPress}
+                  style={styles.searchInput}
+                  disabled={isSearching}
+                />
+                <button
+                  onClick={handleSearchById}
+                  disabled={isSearching || !searchTerm.trim()}
+                  style={{
+                    ...styles.searchButton,
+                    opacity: isSearching || !searchTerm.trim() ? 0.5 : 1
+                  }}
+                >
+                  {isSearching ? '🔄 Buscando...' : '🔍 Buscar'}
+                </button>
+                <button
+                  onClick={clearSearch}
+                  disabled={isSearching}
+                  style={styles.clearButton}
+                >
+                  🧹 Limpiar
+                </button>
+              </div>
+              {error && (
+                <div style={styles.errorMessage}>
+                  {error}
+                </div>
+              )}
             </div>
+
+            {/* Resultados de búsqueda o lista completa */}
+            {searchResults.length > 0 ? (
+              <div>
+                <h3 style={styles.resultsTitle}>
+                  🔍 Resultado de búsqueda (1 venta encontrada)
+                </h3>
+                <SaleList
+                  sales={searchResults}
+                  handleViewDetail={handleViewSaleDetail}
+                  styles={styles}
+                  isSearchResult={true}
+                />
+              </div>
+            ) : (
+              <div>
+                <h3 style={styles.listTitle}>📋 Lista de Ventas Completas</h3>
+                <SaleList
+                  sales={sales}
+                  handleViewDetail={handleViewSaleDetail}
+                  styles={styles}
+                  isSearchResult={false}
+                />
+                {/* Paginación - solo mostrar si no hay búsqueda activa */}
+                <div style={styles.paginationContainer}>
+                  <button
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1 || loading}
+                    style={styles.paginationButton}
+                  >
+                    ⬅️ Anterior
+                  </button>
+                  <span style={styles.paginationText}>Página {currentPage} de {totalPages}</span>
+                  <button
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages || loading}
+                    style={styles.paginationButton}
+                  >
+                    Siguiente ➡️
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Mensaje de error cuando no se encuentra venta */}
+            {error && searchResults.length === 0 && (
+              <div style={styles.errorContainer}>
+                <div style={styles.errorIcon}>⚠️</div>
+                <p style={styles.errorText}>{error}</p>
+                <p style={styles.errorSuggestion}>
+                  Verifica que el ID de venta sea correcto o intenta con otro ID.
+                </p>
+              </div>
+            )}
           </div>
         );
       default:
@@ -204,7 +339,6 @@ const SalesPage = () => {
   };
 
   if (loading) return <p>Cargando ventas...</p>;
-  if (error) return <p style={{ color: 'red' }}>{error}</p>;
 
   return (
     <div style={styles.container}>
@@ -680,6 +814,93 @@ const styles = {
     fontSize: '16px',
     fontWeight: 'bold',
     minWidth: '40px'
+  },
+  // Estilos para el buscador de ventas
+  searchSection: {
+    backgroundColor: '#f8f9fa',
+    padding: '20px',
+    borderRadius: '8px',
+    marginBottom: '20px',
+    border: '1px solid #e9ecef',
+  },
+  searchTitle: {
+    color: '#495057',
+    marginBottom: '15px',
+    fontSize: '18px',
+    fontWeight: 'bold',
+  },
+  searchControls: {
+    display: 'flex',
+    gap: '10px',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+  },
+  searchInput: {
+    padding: '10px',
+    border: '1px solid #ccc',
+    borderRadius: '4px',
+    fontSize: '16px',
+    width: '300px',
+    boxSizing: 'border-box',
+  },
+  searchButton: {
+    backgroundColor: '#007bff',
+    color: '#fff',
+    padding: '10px 20px',
+    borderRadius: '4px',
+    border: 'none',
+    cursor: 'pointer',
+    fontSize: '16px',
+    transition: 'background-color 0.3s ease',
+  },
+  clearButton: {
+    backgroundColor: '#6c757d',
+    color: '#fff',
+    padding: '10px 20px',
+    borderRadius: '4px',
+    border: 'none',
+    cursor: 'pointer',
+    fontSize: '16px',
+    transition: 'background-color 0.3s ease',
+  },
+  resultsTitle: {
+    color: '#28a745',
+    marginBottom: '20px',
+    fontSize: '16px',
+    fontWeight: 'bold',
+  },
+  listTitle: {
+    color: '#28a745',
+    marginBottom: '20px',
+    fontSize: '20px',
+    fontWeight: 'bold',
+  },
+  errorMessage: {
+    marginTop: '10px',
+    padding: '10px',
+    backgroundColor: '#f8d7da',
+    color: '#721c24',
+    border: '1px solid #f5c6cb',
+    borderRadius: '4px',
+    fontSize: '14px',
+  },
+  errorContainer: {
+    textAlign: 'center',
+    padding: '40px',
+    backgroundColor: '#fff3cd',
+    border: '1px solid #ffeaa7',
+    borderRadius: '8px',
+    marginTop: '20px',
+  },
+  errorIcon: {
+    fontSize: '48px',
+    marginBottom: '15px',
+  },
+  errorSuggestion: {
+    color: '#856404',
+    fontSize: '14px',
+    marginTop: '10px',
+    fontStyle: 'italic',
   },
 };
 
