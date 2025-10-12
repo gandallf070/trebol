@@ -23,14 +23,16 @@ const TopProductsChart = () => {
 
   if (loading) {
     return (
-      <div style={{
-        height: '250px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#f8f9fa',
-        borderRadius: '4px'
-      }}>
+      <div
+        style={{
+          height: '250px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: '#f8f9fa',
+          borderRadius: '4px',
+        }}
+      >
         Cargando productos más vendidos...
       </div>
     );
@@ -41,15 +43,17 @@ const TopProductsChart = () => {
 
   if (totalVentas === 0) {
     return (
-      <div style={{
-        height: '250px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#f8f9fa',
-        borderRadius: '4px',
-        color: '#6c757d'
-      }}>
+      <div
+        style={{
+          height: '250px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: '#f8f9fa',
+          borderRadius: '4px',
+          color: '#6c757d',
+        }}
+      >
         No se encontraron ventas para mostrar
       </div>
     );
@@ -61,31 +65,67 @@ const TopProductsChart = () => {
 
   return (
     <div style={{ height: '250px', width: '100%', padding: '20px' }}>
-      <h4 style={{ textAlign: 'center', marginBottom: '20px', color: '#495057' }}>
+      <h4
+        style={{ textAlign: 'center', marginBottom: '20px', color: '#495057' }}
+      >
         Top Productos Más Vendidos (Total: {totalVentas})
       </h4>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', height: '180px', overflowY: 'auto' }}>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '15px',
+          height: '180px',
+          overflowY: 'auto',
+        }}
+      >
         {products.map((product, index) => {
           const quantity = quantities[index] || 0;
-          const percentage = totalVentas > 0 ? ((quantity / totalVentas) * 100).toFixed(1) : 0;
+          const percentage =
+            totalVentas > 0 ? ((quantity / totalVentas) * 100).toFixed(1) : 0;
           const barWidth = maxQuantity > 0 ? (quantity / maxQuantity) * 100 : 0;
 
           return (
-            <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <div style={{ width: '120px', textAlign: 'left', fontSize: '12px', color: '#495057' }}>
-                {product.length > 15 ? product.substring(0, 15) + '...' : product}
+            <div
+              key={index}
+              style={{ display: 'flex', alignItems: 'center', gap: '10px' }}
+            >
+              <div
+                style={{
+                  width: '120px',
+                  textAlign: 'left',
+                  fontSize: '12px',
+                  color: '#495057',
+                }}
+              >
+                {product.length > 15
+                  ? product.substring(0, 15) + '...'
+                  : product}
               </div>
-              <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div
+                style={{
+                  flex: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                }}
+              >
                 <div
                   style={{
                     height: '20px',
                     width: barWidth + '%',
                     backgroundColor: colors[index % colors.length],
                     borderRadius: '4px',
-                    minWidth: '20px'
+                    minWidth: '20px',
                   }}
                 />
-                <span style={{ fontSize: '12px', color: '#495057', minWidth: '60px' }}>
+                <span
+                  style={{
+                    fontSize: '12px',
+                    color: '#495057',
+                    minWidth: '60px',
+                  }}
+                >
                   {quantity} ({percentage}%)
                 </span>
               </div>

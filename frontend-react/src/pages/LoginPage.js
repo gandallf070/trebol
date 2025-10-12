@@ -6,7 +6,7 @@ const LoginPage = () => {
   const [password, setPassword] = useState('');
   const { loginUser } = useAuth();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = e => {
     e.preventDefault();
     loginUser(username, password);
   };
@@ -17,28 +17,34 @@ const LoginPage = () => {
         <h2 style={styles.title}>Iniciar Sesión</h2>
         <form onSubmit={handleSubmit} style={styles.form}>
           <div style={styles.formGroup}>
-            <label htmlFor="username" style={styles.label}>Usuario:</label>
+            <label htmlFor="username" style={styles.label}>
+              Usuario:
+            </label>
             <input
               type="text"
               id="username"
               value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              onChange={e => setUsername(e.target.value)}
               style={styles.input}
               required
             />
           </div>
           <div style={styles.formGroup}>
-            <label htmlFor="password" style={styles.label}>Contraseña:</label>
+            <label htmlFor="password" style={styles.label}>
+              Contraseña:
+            </label>
             <input
               type="password"
               id="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={e => setPassword(e.target.value)}
               style={styles.input}
               required
             />
           </div>
-          <button type="submit" style={styles.button}>Entrar</button>
+          <button type="submit" style={styles.button}>
+            Entrar
+          </button>
         </form>
       </div>
     </div>

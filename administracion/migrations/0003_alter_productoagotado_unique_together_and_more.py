@@ -7,27 +7,41 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('administracion', '0002_productoagotado'),
+        ("administracion", "0002_productoagotado"),
     ]
 
     operations = [
         migrations.AlterUniqueTogether(
-            name='productoagotado',
+            name="productoagotado",
             unique_together=set(),
         ),
         migrations.AlterField(
-            model_name='productoagotado',
-            name='fecha_inicio',
-            field=models.DateTimeField(blank=True, help_text='Fecha cuando el producto comenzó a venderse', null=True, verbose_name='fecha inicio'),
+            model_name="productoagotado",
+            name="fecha_inicio",
+            field=models.DateTimeField(
+                blank=True,
+                help_text="Fecha cuando el producto comenzó a venderse",
+                null=True,
+                verbose_name="fecha inicio",
+            ),
         ),
         migrations.AlterField(
-            model_name='productoagotado',
-            name='producto',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='administracion.producto', verbose_name='producto'),
+            model_name="productoagotado",
+            name="producto",
+            field=models.OneToOneField(
+                on_delete=django.db.models.deletion.CASCADE,
+                to="administracion.producto",
+                verbose_name="producto",
+            ),
         ),
         migrations.AlterField(
-            model_name='productoagotado',
-            name='tiempo_vida',
-            field=models.IntegerField(blank=True, help_text='Días que tardó en agotarse', null=True, verbose_name='tiempo vida (días)'),
+            model_name="productoagotado",
+            name="tiempo_vida",
+            field=models.IntegerField(
+                blank=True,
+                help_text="Días que tardó en agotarse",
+                null=True,
+                verbose_name="tiempo vida (días)",
+            ),
         ),
     ]

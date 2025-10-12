@@ -9,11 +9,13 @@ const ClientForm = ({
   styles,
   ciError,
   telefonoError,
-  handleBlur
+  handleBlur,
 }) => {
   return (
     <div style={styles.formCard}>
-      <h2 style={styles.formTitle}>{editingClient ? 'Editar Cliente' : 'Crear Nuevo Cliente'}</h2>
+      <h2 style={styles.formTitle}>
+        {editingClient ? 'Editar Cliente' : 'Crear Nuevo Cliente'}
+      </h2>
       <form onSubmit={handleSubmit} style={styles.form}>
         <div>
           <input
@@ -54,7 +56,10 @@ const ClientForm = ({
             value={editingClient ? editingClient.telefono : newClient.telefono}
             onChange={handleInputChange}
             onBlur={handleBlur}
-            style={{ ...styles.input, borderColor: telefonoError ? 'red' : '#ccc' }}
+            style={{
+              ...styles.input,
+              borderColor: telefonoError ? 'red' : '#ccc',
+            }}
             required
           />
           {telefonoError && <p style={styles.errorText}>{telefonoError}</p>}
@@ -63,7 +68,11 @@ const ClientForm = ({
           {editingClient ? 'Guardar Cambios' : 'Crear Cliente'}
         </button>
         {editingClient && (
-          <button type="button" onClick={() => setEditingClient(null)} style={{ ...styles.button, backgroundColor: '#6c757d' }}>
+          <button
+            type="button"
+            onClick={() => setEditingClient(null)}
+            style={{ ...styles.button, backgroundColor: '#6c757d' }}
+          >
             Cancelar
           </button>
         )}

@@ -9,13 +9,14 @@ const CategoriesPage = () => {
   const [categories, setCategories] = useState([]);
   const [newCategory, setNewCategory] = useState({
     nombre: '',
-    descripcion: ''
+    descripcion: '',
   });
   const [editingCategory, setEditingCategory] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [errors, setErrors] = useState({});
-  const [activeCategorySection, setActiveCategorySection] = useState('category_list');
+  const [activeCategorySection, setActiveCategorySection] =
+    useState('category_list');
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -46,7 +47,7 @@ const CategoriesPage = () => {
     }
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = e => {
     const { name, value } = e.target;
 
     if (editingCategory) {
@@ -61,7 +62,7 @@ const CategoriesPage = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     setError(null);
     setErrors({});
@@ -70,7 +71,8 @@ const CategoriesPage = () => {
 
     // Validaciones básicas
     const newErrors = {};
-    if (!categoryToSave.nombre.trim()) newErrors.nombre = 'El nombre es requerido';
+    if (!categoryToSave.nombre.trim())
+      newErrors.nombre = 'El nombre es requerido';
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -79,14 +81,17 @@ const CategoriesPage = () => {
 
     try {
       if (editingCategory) {
-        await api.put(`/inventario/categories/${editingCategory.id}/`, categoryToSave);
+        await api.put(
+          `/inventario/categories/${editingCategory.id}/`,
+          categoryToSave
+        );
       } else {
         await api.post('/inventario/categories/', categoryToSave);
       }
 
       setNewCategory({
         nombre: '',
-        descripcion: ''
+        descripcion: '',
       });
       setEditingCategory(null);
       fetchCategories();
@@ -101,14 +106,16 @@ const CategoriesPage = () => {
     }
   };
 
-  const handleEdit = (category) => {
+  const handleEdit = category => {
     setEditingCategory({ ...category });
     setActiveCategorySection('new_category');
     setErrors({});
   };
 
-  const handleDelete = async (categoryId) => {
-    if (window.confirm('¿Estás seguro de que quieres eliminar esta categoría?')) {
+  const handleDelete = async categoryId => {
+    if (
+      window.confirm('¿Estás seguro de que quieres eliminar esta categoría?')
+    ) {
       setError(null);
       try {
         await api.delete(`/inventario/categories/${categoryId}/`);
@@ -130,7 +137,9 @@ const CategoriesPage = () => {
     setError(null);
 
     try {
-      const response = await api.get(`/inventario/categories/?search=${searchTerm}`);
+      const response = await api.get(
+        `/inventario/categories/?search=${searchTerm}`
+      );
       setSearchResults(response.data.results);
     } catch (err) {
       setError('Error al buscar categorías por nombre.');
@@ -150,11 +159,11 @@ const CategoriesPage = () => {
     }
   };
 
-  const handleSearchInputChange = (e) => {
+  const handleSearchInputChange = e => {
     setSearchTerm(e.target.value);
   };
 
-  const handlePageChange = (page) => {
+  const handlePageChange = page => {
     if (page > 0 && page <= totalPages) {
       setCurrentPage(page);
     }
@@ -188,14 +197,14 @@ const CategoriesPage = () => {
                   value={searchTerm}
                   onChange={handleSearchInputChange}
                   style={styles.searchInput}
-                  onKeyPress={(e) => e.key === 'Enter' && handleSearchByName()}
+                  onKeyPress={e => e.key === 'Enter' && handleSearchByName()}
                 />
                 <button
                   onClick={handleSearchByName}
                   disabled={isSearching || !searchTerm.trim()}
                   style={{
                     ...styles.searchButton,
-                    opacity: isSearching || !searchTerm.trim() ? 0.5 : 1
+                    opacity: isSearching || !searchTerm.trim() ? 0.5 : 1,
                   }}
                 >
                   {isSearching ? 'Buscando...' : 'Buscar'}
@@ -214,12 +223,24 @@ const CategoriesPage = () => {
             {searchResults.length > 0 ? (
               <div>
                 <h3 style={styles.resultsTitle}>
-                  Resultados de búsqueda ({searchResults.length} categoría{searchResults.length !== 1 ? 's' : ''} encontrada{searchResults.length !== 1 ? 's' : ''})
+                  Resultados de búsqueda ({searchResults.length} categoría
+                  {searchResults.length !== 1 ? 's' : ''} encontrada
+                  {searchResults.length !== 1 ? 's' : ''})
                 </h3>
-                <CategoryList categories={searchResults} handleEdit={handleEdit} handleDelete={handleDelete} styles={styles} />
+                <CategoryList
+                  categories={searchResults}
+                  handleEdit={handleEdit}
+                  handleDelete={handleDelete}
+                  styles={styles}
+                />
               </div>
             ) : (
-              <CategoryList categories={categories} handleEdit={handleEdit} handleDelete={handleDelete} styles={styles} />
+              <CategoryList
+                categories={categories}
+                handleEdit={handleEdit}
+                handleDelete={handleDelete}
+                styles={styles}
+              />
             )}
 
             {/* Paginación - solo mostrar si no hay búsqueda activa */}
@@ -232,7 +253,9 @@ const CategoriesPage = () => {
                 >
                   Anterior
                 </button>
-                <span style={styles.paginationText}>Página {currentPage} de {totalPages}</span>
+                <span style={styles.paginationText}>
+                  Página {currentPage} de {totalPages}
+                </span>
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === totalPages}
@@ -258,13 +281,17 @@ const CategoriesPage = () => {
 
       <div style={styles.buttonContainer}>
         <button
-          style={activeCategorySection === 'new_category' ? styles.activeButton : styles.button}
+          style={
+            activeCategorySection === 'new_category'
+              ? styles.activeButton
+              : styles.button
+          }
           onClick={() => {
             setActiveCategorySection('new_category');
             setEditingCategory(null);
             setNewCategory({
               nombre: '',
-              descripcion: ''
+              descripcion: '',
             });
             setErrors({});
           }}
@@ -272,7 +299,11 @@ const CategoriesPage = () => {
           Nueva Categoría
         </button>
         <button
-          style={activeCategorySection === 'category_list' ? styles.activeButton : styles.button}
+          style={
+            activeCategorySection === 'category_list'
+              ? styles.activeButton
+              : styles.button
+          }
           onClick={() => setActiveCategorySection('category_list')}
         >
           Lista de Categorías

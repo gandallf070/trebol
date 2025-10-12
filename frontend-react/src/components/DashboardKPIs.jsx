@@ -6,26 +6,29 @@ const DashboardKPIs = ({ totalInventory, dailySales, lowStock, styles }) => {
       <div style={styles.kpiCard}>
         <h3 style={styles.kpiTitle}>Inventario Total</h3>
         <div style={styles.kpiValue}>
-          {totalInventory && totalInventory.total !== undefined ? totalInventory.total : 'N/A'}
+          {totalInventory && totalInventory.total !== undefined
+            ? totalInventory.total
+            : 'N/A'}
         </div>
         <div style={styles.kpiTrend}>
           {totalInventory && totalInventory.trend !== undefined
             ? `${totalInventory.trend >= 0 ? '↗' : '↘'} ${Math.abs(totalInventory.trend)}%`
-            : 'Sin datos'
-          }
+            : 'Sin datos'}
         </div>
       </div>
 
       <div style={styles.kpiCard}>
         <h3 style={styles.kpiTitle}>Ventas del Día</h3>
         <div style={styles.kpiValue}>
-          Bs {dailySales && dailySales.amount !== undefined ? dailySales.amount.toFixed(2) : '0.00'}
+          Bs{' '}
+          {dailySales && dailySales.amount !== undefined
+            ? dailySales.amount.toFixed(2)
+            : '0.00'}
         </div>
         <div style={styles.kpiTrend}>
           {dailySales && dailySales.trend !== undefined
             ? `${dailySales.trend >= 0 ? '↗' : '↘'} ${Math.abs(dailySales.trend)}%`
-            : 'Sin datos'
-          }
+            : 'Sin datos'}
         </div>
       </div>
 

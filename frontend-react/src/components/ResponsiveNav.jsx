@@ -40,7 +40,7 @@ const ResponsiveNav = () => {
     user: user,
     userRole: user?.role,
     menuItemsCount: menuItems.length,
-    menuItems: menuItems
+    menuItems: menuItems,
   });
 
   return (
@@ -52,12 +52,19 @@ const ResponsiveNav = () => {
         <div className="rn-title">Joyería Trebol</div>
       </header>
 
-      <aside className={`rn-sidebar ${isOpen ? 'open' : 'closed'} ${isMobile ? 'mobile' : 'desktop'}`}>
+      <aside
+        className={`rn-sidebar ${isOpen ? 'open' : 'closed'} ${isMobile ? 'mobile' : 'desktop'}`}
+      >
         <nav>
           <ul>
             {menuItems.map(item => (
               <li key={item.name}>
-                <Link to={item.path} onClick={() => isMobile && setIsOpen(false)}>{item.name}</Link>
+                <Link
+                  to={item.path}
+                  onClick={() => isMobile && setIsOpen(false)}
+                >
+                  {item.name}
+                </Link>
               </li>
             ))}
           </ul>
@@ -66,12 +73,18 @@ const ResponsiveNav = () => {
         <div className="rn-footer">
           {user ? (
             <>
-              <div className="rn-user">Usuario: <strong>{user.username}</strong></div>
+              <div className="rn-user">
+                Usuario: <strong>{user.username}</strong>
+              </div>
               <div className="rn-role">Rol: ({user.role})</div>
-              <button className="rn-logout" onClick={handleLogout}>Cerrar Sesión</button>
+              <button className="rn-logout" onClick={handleLogout}>
+                Cerrar Sesión
+              </button>
             </>
           ) : (
-            <Link className="rn-login" to="/login">Iniciar Sesión</Link>
+            <Link className="rn-login" to="/login">
+              Iniciar Sesión
+            </Link>
           )}
         </div>
       </aside>

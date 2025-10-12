@@ -67,7 +67,7 @@ const SalesPage = () => {
     }
   };
 
-  const handleCreateSale = async (saleData) => {
+  const handleCreateSale = async saleData => {
     setError(null);
     setErrors({});
 
@@ -106,11 +106,12 @@ const SalesPage = () => {
     }
   };
 
-  const registerOutOfStockProducts = async (saleDetails) => {
+  const registerOutOfStockProducts = async saleDetails => {
     try {
       // Obtener productos actuales para verificar stock
       const productsResponse = await api.get('/inventario/products/');
-      const currentProducts = productsResponse.data.results || productsResponse.data;
+      const currentProducts =
+        productsResponse.data.results || productsResponse.data;
 
       // Verificar cada producto vendido
       for (const detail of saleDetails) {
@@ -122,13 +123,13 @@ const SalesPage = () => {
             await api.post('/productos-agotados/', {
               producto_id: product.id,
               cantidad_inicial: product.cantidad_disponible + detail.cantidad, // Cantidad inicial estimada
-              cantidad_vendida: detail.cantidad
+              cantidad_vendida: detail.cantidad,
             });
             // Producto registrado como agotado
           } catch (agotadoError) {
             // Si ya existe el registro (400) o es un error de restricción unique, continuar silenciosamente
             if (agotadoError.response?.status === 400) {
-            // Producto ya estaba registrado como agotado
+              // Producto ya estaba registrado como agotado
             } else {
               // Error al registrar producto agotado
             }
@@ -141,7 +142,7 @@ const SalesPage = () => {
     }
   };
 
-  const handleViewSaleDetail = async (saleId) => {
+  const handleViewSaleDetail = async saleId => {
     setError(null);
     try {
       const response = await api.get(`/sales/${saleId}/`);
@@ -156,13 +157,13 @@ const SalesPage = () => {
     setSelectedSale(null);
   };
 
-  const handlePageChange = (page) => {
+  const handlePageChange = page => {
     if (page > 0 && page <= totalPages) {
       setCurrentPage(page);
     }
   };
 
-  const handleSearchChange = (e) => {
+  const handleSearchChange = e => {
     setSearchTerm(e.target.value);
     setCurrentPage(1); // Reset a primera página cuando se busca
   };
@@ -189,7 +190,7 @@ const SalesPage = () => {
 
     try {
       const response = await api.get('/sales/', {
-        params: { venta_id: saleId }
+        params: { venta_id: saleId },
       });
       setSearchResults(response.data.results || []);
       if (response.data.results && response.data.results.length === 0) {
@@ -219,7 +220,7 @@ const SalesPage = () => {
     }
   };
 
-  const handleSearchInputKeyPress = (e) => {
+  const handleSearchInputKeyPress = e => {
     if (e.key === 'Enter') {
       handleSearchById();
     }
@@ -258,7 +259,7 @@ const SalesPage = () => {
                   disabled={isSearching || !searchTerm.trim()}
                   style={{
                     ...styles.searchButton,
-                    opacity: isSearching || !searchTerm.trim() ? 0.5 : 1
+                    opacity: isSearching || !searchTerm.trim() ? 0.5 : 1,
                   }}
                 >
                   {isSearching ? '🔄 Buscando...' : '🔍 Buscar'}
@@ -271,11 +272,7 @@ const SalesPage = () => {
                   🧹 Limpiar
                 </button>
               </div>
-              {error && (
-                <div style={styles.errorMessage}>
-                  {error}
-                </div>
-              )}
+              {error && <div style={styles.errorMessage}>{error}</div>}
             </div>
 
             {/* Resultados de búsqueda o lista completa */}
@@ -309,7 +306,9 @@ const SalesPage = () => {
                   >
                     ⬅️ Anterior
                   </button>
-                  <span style={styles.paginationText}>Página {currentPage} de {totalPages}</span>
+                  <span style={styles.paginationText}>
+                    Página {currentPage} de {totalPages}
+                  </span>
                   <button
                     onClick={() => handlePageChange(currentPage + 1)}
                     disabled={currentPage === totalPages || loading}
@@ -327,7 +326,8 @@ const SalesPage = () => {
                 <div style={styles.errorIcon}>⚠️</div>
                 <p style={styles.errorText}>{error}</p>
                 <p style={styles.errorSuggestion}>
-                  Verifica que el ID de venta sea correcto o intenta con otro ID.
+                  Verifica que el ID de venta sea correcto o intenta con otro
+                  ID.
                 </p>
               </div>
             )}
@@ -346,13 +346,21 @@ const SalesPage = () => {
 
       <div style={styles.buttonContainer}>
         <button
-          style={activeSaleSection === 'new_sale' ? styles.activeButton : styles.button}
+          style={
+            activeSaleSection === 'new_sale'
+              ? styles.activeButton
+              : styles.button
+          }
           onClick={() => setActiveSaleSection('new_sale')}
         >
           Nueva Venta
         </button>
         <button
-          style={activeSaleSection === 'sale_list' ? styles.activeButton : styles.button}
+          style={
+            activeSaleSection === 'sale_list'
+              ? styles.activeButton
+              : styles.button
+          }
           onClick={() => setActiveSaleSection('sale_list')}
         >
           Lista de Ventas
@@ -785,12 +793,12 @@ const styles = {
     fontWeight: 'bold',
     color: '#495057',
     minWidth: '60px',
-    display: 'inline-block'
+    display: 'inline-block',
   },
   buttonGroup: {
     display: 'flex',
     gap: '8px',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   reduceButton: {
     backgroundColor: '#ffc107',
@@ -802,7 +810,7 @@ const styles = {
     fontSize: '16px',
     fontWeight: 'bold',
     transition: 'background-color 0.3s ease',
-    minWidth: '40px'
+    minWidth: '40px',
   },
   reduceButtonDisabled: {
     backgroundColor: '#e9ecef',
@@ -813,7 +821,7 @@ const styles = {
     cursor: 'not-allowed',
     fontSize: '16px',
     fontWeight: 'bold',
-    minWidth: '40px'
+    minWidth: '40px',
   },
   // Estilos para el buscador de ventas
   searchSection: {

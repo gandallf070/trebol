@@ -8,28 +8,84 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('administracion', '0001_initial'),
+        ("administracion", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='ProductoAgotado',
+            name="ProductoAgotado",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='fecha creación')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='fecha actualización')),
-                ('fecha_inicio', models.DateTimeField(help_text='Fecha cuando el producto comenzó a venderse', verbose_name='fecha inicio')),
-                ('fecha_agotado', models.DateTimeField(default=django.utils.timezone.now, help_text='Fecha cuando se agotó completamente', verbose_name='fecha agotado')),
-                ('cantidad_inicial', models.IntegerField(help_text='Cantidad inicial cuando comenzó a venderse', verbose_name='cantidad inicial')),
-                ('cantidad_vendida', models.IntegerField(help_text='Cantidad total vendida hasta agotarse', verbose_name='cantidad vendida')),
-                ('tiempo_vida', models.IntegerField(help_text='Días que tardó en agotarse', verbose_name='tiempo vida (días)')),
-                ('producto', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='administracion.producto', verbose_name='producto')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="fecha creación"
+                    ),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(
+                        auto_now=True, verbose_name="fecha actualización"
+                    ),
+                ),
+                (
+                    "fecha_inicio",
+                    models.DateTimeField(
+                        help_text="Fecha cuando el producto comenzó a venderse",
+                        verbose_name="fecha inicio",
+                    ),
+                ),
+                (
+                    "fecha_agotado",
+                    models.DateTimeField(
+                        default=django.utils.timezone.now,
+                        help_text="Fecha cuando se agotó completamente",
+                        verbose_name="fecha agotado",
+                    ),
+                ),
+                (
+                    "cantidad_inicial",
+                    models.IntegerField(
+                        help_text="Cantidad inicial cuando comenzó a venderse",
+                        verbose_name="cantidad inicial",
+                    ),
+                ),
+                (
+                    "cantidad_vendida",
+                    models.IntegerField(
+                        help_text="Cantidad total vendida hasta agotarse",
+                        verbose_name="cantidad vendida",
+                    ),
+                ),
+                (
+                    "tiempo_vida",
+                    models.IntegerField(
+                        help_text="Días que tardó en agotarse",
+                        verbose_name="tiempo vida (días)",
+                    ),
+                ),
+                (
+                    "producto",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="administracion.producto",
+                        verbose_name="producto",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'producto agotado',
-                'verbose_name_plural': 'productos agotados',
-                'ordering': ['-fecha_agotado'],
-                'unique_together': {('producto',)},
+                "verbose_name": "producto agotado",
+                "verbose_name_plural": "productos agotados",
+                "ordering": ["-fecha_agotado"],
+                "unique_together": {("producto",)},
             },
         ),
     ]

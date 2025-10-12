@@ -17,12 +17,12 @@ export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
 
   // Función para obtener detalles reales del usuario desde el backend
-  const getUserDetails = async (token) => {
+  const getUserDetails = async token => {
     try {
       const response = await api.get('auth/profile/', {
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
       if (response.status === 200) {
         const userData = response.data;
@@ -31,7 +31,7 @@ export const AuthProvider = ({ children }) => {
           role: userData.role,
           is_admin: userData.role === 'admin',
           is_vendedor: userData.role === 'vendedor',
-          is_gerente: userData.role === 'gerente'
+          is_gerente: userData.role === 'gerente',
         };
       }
     } catch (error) {
@@ -44,7 +44,7 @@ export const AuthProvider = ({ children }) => {
           role: 'vendedor', // Rol por defecto
           is_admin: false,
           is_vendedor: true,
-          is_gerente: false
+          is_gerente: false,
         };
       } catch (decodeError) {
         console.error('Error decodificando token:', decodeError);
@@ -149,9 +149,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={contextData}>
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={contextData}>{children}</AuthContext.Provider>
   );
 };
 

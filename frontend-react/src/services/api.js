@@ -11,7 +11,7 @@ const api = axios.create({
 
 // Interceptor para añadir el token JWT a las peticiones
 api.interceptors.request.use(
-  (config) => {
+  config => {
     const authTokens = localStorage.getItem('authTokens')
       ? JSON.parse(localStorage.getItem('authTokens'))
       : null;
@@ -20,17 +20,20 @@ api.interceptors.request.use(
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  error => Promise.reject(error)
 );
 
 // Interceptor para manejar respuestas y errores
 api.interceptors.response.use(
-  (response) => response,
-  async (error) => {
+  response => response,
+  async error => {
     const originalRequest = error.config;
 
     // Evitar bucles infinitos si el refresh token también falla
-    if (error.response.status === 401 && originalRequest.url.includes('token/refresh')) {
+    if (
+      error.response.status === 401 &&
+      originalRequest.url.includes('token/refresh')
+    ) {
       // Redirigir a login si el refresh falla
       window.location.href = '/login';
       return Promise.reject(error);
@@ -52,9 +55,9 @@ api.interceptors.response.use(
           localStorage.setItem('authTokens', JSON.stringify(newAuthTokens));
 
           // Actualizar el header de la petición original y reintentarla
-          originalRequest.headers['Authorization'] = `Bearer ${newAuthTokens.access}`;
+          originalRequest.headers['Authorization'] =
+            `Bearer ${newAuthTokens.access}`;
           return api(originalRequest);
-
         } catch (refreshError) {
           console.error('Refresh token inválido o expirado.', refreshError);
           // Limpiar tokens y redirigir a login
@@ -67,7 +70,9 @@ api.interceptors.response.use(
 
     // Si es un error 403 (Forbidden), no mostrar en consola como error crítico
     if (error.response?.status === 403) {
-      console.warn('Acceso denegado a recurso protegido (esto es normal según el rol del usuario)');
+      console.warn(
+        'Acceso denegado a recurso protegido (esto es normal según el rol del usuario)'
+      );
       return Promise.reject(error);
     }
 

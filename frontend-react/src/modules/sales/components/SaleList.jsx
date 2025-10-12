@@ -1,14 +1,18 @@
 import React from 'react';
 
-const SaleList = ({ sales, handleViewDetail, styles, isSearchResult = false }) => {
+const SaleList = ({
+  sales,
+  handleViewDetail,
+  styles,
+  isSearchResult = false,
+}) => {
   if (!sales || sales.length === 0) {
     return (
       <div style={styles.noDataContainer}>
         <p style={styles.noDataText}>
           {isSearchResult
-            ? "No se encontraron ventas con el ID especificado."
-            : "No hay ventas registradas."
-          }
+            ? 'No se encontraron ventas con el ID especificado.'
+            : 'No hay ventas registradas.'}
         </p>
       </div>
     );
@@ -29,11 +33,12 @@ const SaleList = ({ sales, handleViewDetail, styles, isSearchResult = false }) =
           </tr>
         </thead>
         <tbody>
-          {sales.map((sale) => (
+          {sales.map(sale => (
             <tr key={sale.id}>
               <td style={styles.td}>{sale.id}</td>
               <td style={styles.td}>
-                {sale.cliente?.nombre || 'Cliente no encontrado'} {sale.cliente?.apellido || ''}
+                {sale.cliente?.nombre || 'Cliente no encontrado'}{' '}
+                {sale.cliente?.apellido || ''}
               </td>
               <td style={styles.td}>
                 {sale.vendedor || 'Vendedor no encontrado'}
@@ -42,7 +47,9 @@ const SaleList = ({ sales, handleViewDetail, styles, isSearchResult = false }) =
                 {(() => {
                   const fecha = new Date(sale.fecha_venta);
                   const dia = fecha.getDate().toString().padStart(2, '0');
-                  const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
+                  const mes = (fecha.getMonth() + 1)
+                    .toString()
+                    .padStart(2, '0');
                   const anio = fecha.getFullYear();
                   const hora = fecha.getHours().toString().padStart(2, '0');
                   const minuto = fecha.getMinutes().toString().padStart(2, '0');
@@ -51,7 +58,8 @@ const SaleList = ({ sales, handleViewDetail, styles, isSearchResult = false }) =
               </td>
               <td style={styles.td}>${sale.total}</td>
               <td style={styles.td}>
-                {sale.detalles ? sale.detalles.length : 0} producto{(sale.detalles && sale.detalles.length !== 1) ? 's' : ''}
+                {sale.detalles ? sale.detalles.length : 0} producto
+                {sale.detalles && sale.detalles.length !== 1 ? 's' : ''}
               </td>
               <td style={styles.td}>
                 <button
