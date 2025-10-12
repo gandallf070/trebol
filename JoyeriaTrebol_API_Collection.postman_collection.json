@@ -1,0 +1,715 @@
+{
+  "info": {
+    "name": "JoyeríaTrebol API - Colección Completa",
+    "description": "Colección completa para probar todas las funcionalidades del proyecto JoyeríaTrebol incluyendo autenticación JWT, gestión de entidades, lógica de ventas atómica, reportes y pruebas de seguridad.",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{admin_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:8000",
+      "type": "string"
+    },
+    {
+      "key": "admin_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "vendedor_token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "🔐 Autenticación JWT",
+      "item": [
+        {
+          "name": "📝 Registro de Usuario",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"nuevousuario\",\n  \"email\": \"usuario@ejemplo.com\",\n  \"password\": \"password123\",\n  \"password_confirm\": \"password123\",\n  \"first_name\": \"Nuevo\",\n  \"last_name\": \"Usuario\",\n  \"role\": \"vendedor\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register", ""]
+            }
+          }
+        },
+        {
+          "name": "Obtener Token Admin",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": "Especificar que el contenido es JSON"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"password\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/token/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "token", ""]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('admin_token', response.access);",
+                  "    pm.collectionVariables.set('refresh_token', response.refresh);",
+                  "    console.log('Token admin obtenido:', response.access);",
+                  "    console.log('Token de refresco obtenido:', response.refresh);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Obtener Token Vendedor",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"vendedor\",\n  \"password\": \"vendedor123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/token/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "token", ""]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('vendedor_token', response.access);",
+                  "    pm.collectionVariables.set('refresh_token', response.refresh);",
+                  "    console.log('Token vendedor obtenido:', response.access);",
+                  "    console.log('Token de refresco obtenido:', response.refresh);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Refrescar Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh\": \"{{refresh_token}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/token/refresh/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "token", "refresh", ""]
+            }
+          }
+        },
+        {
+          "name": "Logout (Blacklist Token)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/logout/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "logout", ""]
+            }
+          }
+        },
+        {
+          "name": "👤 Perfil de Usuario",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/profile/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "profile", ""]
+            }
+          }
+        },
+        {
+          "name": "Actualizar Perfil",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"Admin\",\n  \"last_name\": \"Actualizado\",\n  \"email\": \"admin@joyeriabolivia.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/profile/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "profile", ""]
+            }
+          }
+        },
+        {
+          "name": "Cambiar Contraseña",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"old_password\": \"password\",\n  \"new_password\": \"nuevaPassword123\",\n  \"new_password_confirm\": \"nuevaPassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/change-password/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "change-password", ""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📋 Gestión de Clientes",
+      "item": [
+        {
+          "name": "Listar Clientes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/clients/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "clients", ""]
+            }
+          }
+        },
+        {
+          "name": "Crear Cliente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ci\": \"87654321\",\n  \"nombre\": \"María\",\n  \"apellido\": \"González\",\n  \"telefono\": \"555-0002\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/clients/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "clients", ""]
+            }
+          }
+        },
+        {
+          "name": "Buscar Cliente por CI",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/clients/?search=1234567",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "clients", ""],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "1234567"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📂 Gestión de Categorías (Solo Admin)",
+      "item": [
+        {
+          "name": "Listar Categorías",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/inventario/categories/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "inventario", "categories", ""]
+            }
+          }
+        },
+        {
+          "name": "Crear Categoría",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Collares\",\n  \"descripcion\": \"Collares de oro y plata\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/inventario/categories/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "inventario", "categories", ""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📦 Gestión de Productos",
+      "item": [
+        {
+          "name": "Listar Productos (Todos los usuarios)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/inventario/products/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "inventario", "products", ""]
+            }
+          }
+        },
+        {
+          "name": "Crear Producto (Solo Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Collar de Oro 18K\",\n  \"descripcion\": \"Hermoso collar de oro 18 quilates\",\n  \"categoria\": 1,\n  \"precio\": 450.00,\n  \"cantidad_disponible\": 5\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/inventario/products/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "inventario", "products", ""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "💰 Sistema de Ventas (Lógica de Negocio)",
+      "item": [
+        {
+          "name": "Crear Venta Válida",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cliente_id\": 1,\n  \"detalles\": [\n    {\n      \"producto_id\": 1,\n      \"cantidad\": 1\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/sales/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "sales", ""]
+            }
+          }
+        },
+        {
+          "name": "Listar Ventas",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/sales/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "sales", ""]
+            }
+          }
+        },
+        {
+          "name": "Ver Detalle de Venta",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/sales/1/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "sales", "1", ""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📊 Reportes (Solo Admin)",
+      "item": [
+        {
+          "name": "Generar Reporte CSV",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/reports/sales/?formato=csv",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reports", "sales", ""],
+              "query": [
+                {
+                  "key": "formato",
+                  "value": "csv"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Generar Reporte PDF",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/reports/sales/?formato=pdf",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reports", "sales", ""],
+              "query": [
+                {
+                  "key": "formato",
+                  "value": "pdf"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Reporte con Filtros de Fecha",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/reports/sales/?formato=csv&fecha_inicio=2025-09-30&fecha_fin=2025-09-30",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reports", "sales", ""],
+              "query": [
+                {
+                  "key": "formato",
+                  "value": "csv"
+                },
+                {
+                  "key": "fecha_inicio",
+                  "value": "2025-09-30"
+                },
+                {
+                  "key": "fecha_fin",
+                  "value": "2025-09-30"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🛡️ Pruebas de Seguridad y Excepciones",
+      "item": [
+        {
+          "name": "Acceso sin Autenticación (Debe Fallar)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/clients/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "clients", ""]
+            }
+          }
+        },
+        {
+          "name": "Cliente No Encontrado (Error 400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cliente_id\": 999,\n  \"detalles\": [\n    {\n      \"producto_id\": 1,\n      \"cantidad\": 1\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/sales/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "sales", ""]
+            }
+          }
+        },
+        {
+          "name": "Producto No Encontrado (Error 400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cliente_id\": 1,\n  \"detalles\": [\n    {\n      \"producto_id\": 999,\n      \"cantidad\": 1\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/sales/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "sales", ""]
+            }
+          }
+        },
+        {
+          "name": "Stock Insuficiente (Error 400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cliente_id\": 1,\n  \"detalles\": [\n    {\n      \"producto_id\": 1,\n      \"cantidad\": 100\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/sales/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "sales", ""]
+            }
+          }
+        },
+        {
+          "name": "Intentar Modificar Venta (Debe Fallar 405)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cliente_id\": 2\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/sales/1/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "sales", "1", ""]
+            }
+          }
+        },
+        {
+          "name": "Intentar Eliminar Venta (Debe Fallar 405)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/sales/1/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "sales", "1", ""]
+            }
+          }
+        },
+        {
+          "name": "Usuario Vendedor Intenta Acceder a Reportes (Debe Fallar 403)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{vendedor_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/reports/sales/?formato=csv",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reports", "sales", ""],
+              "query": [
+                {
+                  "key": "formato",
+                  "value": "csv"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

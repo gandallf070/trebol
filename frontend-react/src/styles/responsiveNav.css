@@ -1,0 +1,81 @@
+.rn-wrapper {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+}
+
+.rn-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: #28a745;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  z-index: 1001;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.rn-burger {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 20px;
+  cursor: pointer;
+  margin-right: 12px;
+}
+
+.rn-title {
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.rn-sidebar {
+  position: fixed;
+  top: 60px; /* debajo de la navbar */
+  left: 0;
+  bottom: 0;
+  width: 250px;
+  background: #343a40;
+  color: #fff;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+  overflow-y: auto;
+  transition: transform 0.28s ease-in-out;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+}
+
+.rn-sidebar.closed { transform: translateX(-250px); }
+.rn-sidebar.open { transform: translateX(0); }
+
+.rn-sidebar.mobile { width: 220px; }
+
+.rn-sidebar nav ul { list-style: none; padding: 8px 0; margin: 0; }
+.rn-sidebar nav li { margin: 6px 12px; }
+.rn-sidebar nav a { display: block; padding: 10px 12px; text-decoration: none; color: #fff; background: #28a745; border-radius: 6px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.15); }
+.rn-sidebar nav a:hover { background: #218838; transform: translateY(-2px); }
+
+.rn-footer { padding: 12px; margin-top: auto; border-top: 1px solid #495057; background: #2c3034; text-align: center; }
+.rn-user, .rn-role { font-size: 14px; color: #fff; margin-bottom: 6px; }
+.rn-logout { background: #dc3545; border: none; color: #fff; padding: 8px 12px; border-radius: 6px; cursor: pointer; width: 100%; }
+.rn-login { display: block; background: #28a745; color: #fff; padding: 8px 12px; border-radius: 6px; text-decoration: none; }
+
+.rn-main {
+  margin-top: 60px;
+  padding: 20px;
+  transition: margin-left 0.28s ease-in-out;
+  min-height: calc(100vh - 60px);
+  background-color: #f8f9fa;
+}
+.rn-main.with-sidebar { margin-left: 250px; }
+
+/* Mobile behavior */
+@media (max-width: 768px) {
+  .rn-sidebar.desktop { display: none; }
+  .rn-main.with-sidebar { margin-left: 0; }
+  .rn-burger { font-size: 22px; }
+}
