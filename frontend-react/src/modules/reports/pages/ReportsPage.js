@@ -306,7 +306,18 @@ const ReportsPage = () => {
                                 {productoAgotado.cantidad_vendida}
                               </td>
                               <td style={{ padding: '15px', textAlign: 'center' }}>
-                                {productoAgotado.tiempo_vida ? `${productoAgotado.tiempo_vida} días` : 'N/A'}
+                                {(() => {
+                                  const fechaRegistro = productoAgotado.producto.fecha_registro;
+                                  const fechaAgotado = productoAgotado.fecha_agotado;
+                                  if (fechaRegistro && fechaAgotado) {
+                                    const inicio = new Date(fechaRegistro);
+                                    const fin = new Date(fechaAgotado);
+                                    const diffMs = fin - inicio;
+                                    const diffDias = Math.max(Math.round(diffMs / (1000 * 60 * 60 * 24)), 1);
+                                    return `${diffDias} días`;
+                                  }
+                                  return 'Sin datos';
+                                })()}
                               </td>
                               <td style={{ padding: '15px', textAlign: 'center' }}>
                                 <span style={{
@@ -1194,6 +1205,37 @@ const InformeMensual = ({ styles, tendencias }) => {
                   Siguiente ➡️
                 </button>
               </div>
+              {/* Resumen de Totales del intervalo filtrado */}
+              {ventas.length > 0 && (
+                <div style={{
+                  backgroundColor: '#e9ecef',
+                  padding: '20px',
+                  borderRadius: '8px',
+                  marginTop: '30px'
+                }}>
+                  <h3 style={{ margin: '0 0 15px 0', color: '#495057' }}>💰 Resumen del intervalo filtrado</h3>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '15px' }}>
+                    <div style={{ textAlign: 'center', padding: '15px', backgroundColor: 'white', borderRadius: '6px' }}>
+                      <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#28a745' }}>{ventas.length}</div>
+                      <div style={{ fontSize: '14px', color: '#6c757d' }}>Ventas Totales</div>
+                    </div>
+                    <div style={{ textAlign: 'center', padding: '15px', backgroundColor: 'white', borderRadius: '6px' }}>
+                      <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#28a745' }}>${calcularTotalVentas().toFixed(2)}</div>
+                      <div style={{ fontSize: '14px', color: '#6c757d' }}>Monto Total</div>
+                    </div>
+                    <div style={{ textAlign: 'center', padding: '15px', backgroundColor: 'white', borderRadius: '6px' }}>
+                      <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#28a745' }}>{calcularTotalProductos()}</div>
+                      <div style={{ fontSize: '14px', color: '#6c757d' }}>Productos Vendidos</div>
+                    </div>
+                    <div style={{ textAlign: 'center', padding: '15px', backgroundColor: 'white', borderRadius: '6px' }}>
+                      <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#28a745' }}>
+                        {ventas.length > 0 ? (calcularTotalVentas() / ventas.length).toFixed(2) : '0.00'}
+                      </div>
+                      <div style={{ fontSize: '14px', color: '#6c757d' }}>Promedio por Venta</div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </>
           )}
         </div>
