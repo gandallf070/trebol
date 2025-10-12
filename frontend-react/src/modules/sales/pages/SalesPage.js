@@ -38,7 +38,7 @@ const SalesPage = () => {
       setTotalPages(Math.ceil(response.data.count / 10));
     } catch (err) {
       setError('Error al cargar las ventas.');
-      console.error('Error al cargar ventas:', err);
+      // Error al cargar ventas
     } finally {
       setLoading(false);
     }
@@ -49,7 +49,7 @@ const SalesPage = () => {
       const response = await api.get('/clients/');
       setClients(response.data.results || response.data);
     } catch (err) {
-      console.error('Error al cargar clientes:', err);
+      // Error al cargar clientes
       setClients([]);
     }
   };
@@ -59,7 +59,7 @@ const SalesPage = () => {
       const response = await api.get('/inventario/products/');
       setProducts(response.data.results || response.data);
     } catch (err) {
-      console.error('Error al cargar productos:', err);
+      // Error al cargar productos
       setProducts([]);
     }
   };
@@ -70,6 +70,9 @@ const SalesPage = () => {
 
     try {
       const response = await api.post('/sales/', saleData);
+
+      // Registrar productos agotados después de una venta exitosa
+      await registerOutOfStockProducts(saleData.detalles);
 
       alert('Venta creada exitosamente');
       fetchSales(); // Recargar lista de ventas
@@ -100,6 +103,41 @@ const SalesPage = () => {
     }
   };
 
+  const registerOutOfStockProducts = async (saleDetails) => {
+    try {
+      // Obtener productos actuales para verificar stock
+      const productsResponse = await api.get('/inventario/products/');
+      const currentProducts = productsResponse.data.results || productsResponse.data;
+
+      // Verificar cada producto vendido
+      for (const detail of saleDetails) {
+        const product = currentProducts.find(p => p.id === detail.producto_id);
+
+        if (product && product.cantidad_disponible <= 0) {
+          // Producto agotado, intentar registrarlo
+          try {
+            await api.post('/productos-agotados/', {
+              producto_id: product.id,
+              cantidad_inicial: product.cantidad_disponible + detail.cantidad, // Cantidad inicial estimada
+              cantidad_vendida: detail.cantidad
+            });
+            // Producto registrado como agotado
+          } catch (agotadoError) {
+            // Si ya existe el registro (400) o es un error de restricción unique, continuar silenciosamente
+            if (agotadoError.response?.status === 400) {
+            // Producto ya estaba registrado como agotado
+            } else {
+              // Error al registrar producto agotado
+            }
+          }
+        }
+      }
+    } catch (error) {
+      // Error al verificar productos agotados
+      // No mostrar error al usuario ya que la venta fue exitosa
+    }
+  };
+
   const handleViewSaleDetail = async (saleId) => {
     setError(null);
     try {
@@ -107,7 +145,7 @@ const SalesPage = () => {
       setSelectedSale(response.data);
     } catch (err) {
       setError('Error al cargar el detalle de la venta.');
-      console.error('Error al cargar detalle de venta:', err);
+      // Error al cargar detalle de venta
     }
   };
 

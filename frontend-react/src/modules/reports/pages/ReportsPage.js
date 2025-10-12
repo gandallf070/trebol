@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { api } from '../../../services/api';
+import api from '../../../services/api';
 
 const ReportsPage = () => {
   const [productosAgotados, setProductosAgotados] = useState([]);
+  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -13,10 +14,23 @@ const ReportsPage = () => {
   const cargarProductosAgotados = async () => {
     try {
       setLoading(true);
+      setError(null);
       const response = await api.get('/productos-agotados/');
-      setProductosAgotados(response.data);
+      const data = response.data;
+
+      // Verificar que data tenga la estructura correcta (paginada)
+      if (data && data.results && Array.isArray(data.results)) {
+        setProductosAgotados(data.results);
+      } else if (Array.isArray(data)) {
+        setProductosAgotados(data);
+      } else {
+        // La respuesta de la API no tiene la estructura esperada
+        setProductosAgotados([]);
+      }
     } catch (error) {
-      console.error('Error al cargar productos agotados:', error);
+      // Error al cargar productos agotados
+      setProductosAgotados([]);
+      setError(error.message || 'Error desconocido al cargar productos agotados');
     } finally {
       setLoading(false);
     }
@@ -25,6 +39,7 @@ const ReportsPage = () => {
   const generarReportePDF = async () => {
     try {
       setLoading(true);
+      // Usar la URL correcta según la configuración de Django
       const response = await api.get('/productos-agotados/generar-reporte-pdf/', {
         responseType: 'blob' // Para manejar archivos binarios
       });
@@ -39,8 +54,12 @@ const ReportsPage = () => {
       link.remove();
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Error al generar reporte PDF:', error);
-      alert('Error al generar el reporte PDF');
+      // Error al generar reporte PDF
+      if (error.response && error.response.status === 404) {
+        alert('El endpoint para generar el reporte PDF no está disponible. Verifica la configuración del servidor.');
+      } else {
+        alert('Error al generar el reporte PDF: ' + (error.message || 'Error desconocido'));
+      }
     } finally {
       setLoading(false);
     }
@@ -72,7 +91,14 @@ const ReportsPage = () => {
 
         <div style={{ marginTop: '20px' }}>
           <h3>Productos Agotados ({productosAgotados.length})</h3>
-          {productosAgotados.length === 0 ? (
+          {error ? (
+            <div style={{ color: 'red', padding: '10px', backgroundColor: '#ffe6e6', borderRadius: '4px' }}>
+              <p>Error al cargar productos agotados: {error}</p>
+              <button onClick={cargarProductosAgotados} style={{ marginTop: '10px' }}>
+                Reintentar
+              </button>
+            </div>
+          ) : productosAgotados.length === 0 ? (
             <p>No hay productos agotados registrados.</p>
           ) : (
             <div style={{

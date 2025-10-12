@@ -131,7 +131,7 @@ const SaleForm = ({
           };
         }
         return { ...item };
-      }).filter(Boolean); // Eliminar productos con cantidad cero
+      }).filter(item => item !== null && item.quantity > 0); // Eliminar productos con cantidad cero o null
 
       // Devolver el nuevo estado. Esto asegura que React detecte el cambio y re-renderice.
       return [...updatedItems];

@@ -82,7 +82,7 @@ class CategoriaViewSet(viewsets.ModelViewSet):
         return [permission() for permission in permission_classes]
 
 class ProductoViewSet(viewsets.ModelViewSet):
-    queryset = Producto.objects.all()
+    queryset = Producto.objects.filter(estado=True, cantidad_disponible__gt=0)
     serializer_class = ProductoSerializer
     permission_classes = [IsAdminOrReadOnly]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
@@ -180,6 +180,11 @@ class VentaViewSet(viewsets.ModelViewSet):
                 # Incrementar inventario usando select_for_update para atomicidad
                 producto_actualizado = Producto.objects.select_for_update().get(id=producto.id)
                 producto_actualizado.cantidad_disponible += cantidad_devolver
+
+                # Si el producto vuelve a tener stock disponible, reactivarlo
+                if producto_actualizado.cantidad_disponible > 0:
+                    producto_actualizado.estado = True
+
                 producto_actualizado.save()
 
                 productos_devueltos.append({
@@ -504,7 +509,7 @@ class DashboardRecentSalesView(APIView):
         return Response(sales_data)
 
 
-class ProductoAgotadoViewSet(viewsets.ReadOnlyModelViewSet):
+class ProductoAgotadoViewSet(viewsets.ModelViewSet):
     """ViewSet para productos agotados"""
     queryset = ProductoAgotado.objects.all().select_related('producto', 'producto__categoria')
     serializer_class = ProductoAgotadoSerializer
@@ -513,10 +518,18 @@ class ProductoAgotadoViewSet(viewsets.ReadOnlyModelViewSet):
     ordering_fields = ['fecha_agotado', 'tiempo_vida', 'cantidad_vendida']
     ordering = ['-fecha_agotado']
 
-    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated, IsAdminUser | IsGerenteUser])
-    def generar_reporte_pdf(self, request):
+    def perform_create(self, serializer):
+        """Crear registro de producto agotado con fecha automática"""
+        serializer.save()
+
+
+class ProductoAgotadoReportePDFView(APIView):
+    """Vista para generar reporte PDF de productos agotados"""
+    permission_classes = [IsAuthenticated, IsAdminUser | IsGerenteUser]
+
+    def get(self, request):
         """Genera reporte PDF de productos agotados y tendencias"""
-        productos_agotados = self.get_queryset()
+        productos_agotados = ProductoAgotado.objects.all().select_related('producto', 'producto__categoria')
 
         if not productos_agotados.exists():
             return Response(

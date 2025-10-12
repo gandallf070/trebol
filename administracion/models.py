@@ -163,25 +163,29 @@ class DetalleVenta(AbstractBaseModel):
 class ProductoAgotado(AbstractBaseModel):
     """Modelo para registrar productos que se agotaron"""
 
-    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, verbose_name=_('producto'))
-    fecha_inicio = models.DateTimeField(_('fecha inicio'), help_text=_('Fecha cuando el producto comenzó a venderse'))
+    producto = models.OneToOneField(Producto, on_delete=models.CASCADE, verbose_name=_('producto'), unique=True)
+    fecha_inicio = models.DateTimeField(_('fecha inicio'), null=True, blank=True, help_text=_('Fecha cuando el producto comenzó a venderse'))
     fecha_agotado = models.DateTimeField(_('fecha agotado'), default=timezone.now, help_text=_('Fecha cuando se agotó completamente'))
     cantidad_inicial = models.IntegerField(_('cantidad inicial'), help_text=_('Cantidad inicial cuando comenzó a venderse'))
     cantidad_vendida = models.IntegerField(_('cantidad vendida'), help_text=_('Cantidad total vendida hasta agotarse'))
-    tiempo_vida = models.IntegerField(_('tiempo vida (días)'), help_text=_('Días que tardó en agotarse'))
+    tiempo_vida = models.IntegerField(_('tiempo vida (días)'), null=True, blank=True, help_text=_('Días que tardó en agotarse'))
 
     class Meta:
         verbose_name = _('producto agotado')
         verbose_name_plural = _('productos agotados')
         ordering = ['-fecha_agotado']
-        unique_together = ['producto']  # Un producto solo puede registrarse una vez como agotado
 
     def __str__(self):
         return f"{self.producto.nombre} - Agotado: {self.fecha_agotado.strftime('%Y-%m-%d')}"
 
     def save(self, *args, **kwargs):
+        # Si no se proporciona fecha_inicio, usar la fecha de creación del producto
+        if not self.fecha_inicio:
+            self.fecha_inicio = self.producto.created_at
+
         # Calcular tiempo de vida si no está establecido
         if not self.tiempo_vida and self.fecha_inicio:
             delta = self.fecha_agotado - self.fecha_inicio
             self.tiempo_vida = delta.days
+
         super().save(*args, **kwargs)

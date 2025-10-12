@@ -4,7 +4,7 @@ from .views import (
     ClienteViewSet, CategoriaViewSet, ProductoViewSet,
     VentaViewSet, DetalleVentaViewSet, ReporteVentasView,
     UserRegistrationView, UserProfileView, ChangePasswordView,
-    LogoutView, ProductoAgotadoViewSet,
+    LogoutView, ProductoAgotadoViewSet, ProductoAgotadoReportePDFView,
     # Dashboard views
     DashboardTotalInventoryView, DashboardLowStockView, DashboardDailySalesView,
     DashboardSalesTrendView, DashboardCategoryDistributionView,
@@ -35,6 +35,6 @@ urlpatterns = [
     path('reports/dashboard/category-distribution/', DashboardCategoryDistributionView.as_view(), name='dashboard-category-distribution'),
     path('reports/dashboard/top-products/', DashboardTopProductsView.as_view(), name='dashboard-top-products'),
     path('reports/dashboard/recent-sales/', DashboardRecentSalesView.as_view(), name='dashboard-recent-sales'),
-    path('productos-agotados/generar-reporte-pdf/', ProductoAgotadoViewSet.as_view({'get': 'generar_reporte_pdf'}), name='productos-agotados-pdf'),
+    path('productos-agotados/generar-reporte-pdf/', ProductoAgotadoReportePDFView.as_view(), name='productos-agotados-pdf'),
     path('test-auth/', TestAuthView.as_view(), name='test-auth'),
 ]

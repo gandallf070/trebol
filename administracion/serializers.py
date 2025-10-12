@@ -92,6 +92,19 @@ class VentaCreateSerializer(serializers.ModelSerializer):
 
                 # Reducir inventario
                 producto.cantidad_disponible -= cantidad
+
+                # Si el producto llega a cero, cambiar estado y crear registro de agotado
+                if producto.cantidad_disponible == 0:
+                    producto.estado = False
+
+                    # Crear registro de producto agotado
+                    ProductoAgotado.objects.create(
+                        producto=producto,
+                        cantidad_inicial=producto.cantidad_disponible + cantidad,  # Cantidad antes de esta venta
+                        cantidad_vendida=cantidad,
+                        fecha_inicio=producto.created_at
+                    )
+
                 producto.save()
 
                 total += detalle.subtotal
@@ -165,6 +178,19 @@ class VentaSerializer(serializers.ModelSerializer):
 
                 # Reducir inventario
                 producto.cantidad_disponible -= cantidad
+
+                # Si el producto llega a cero, cambiar estado y crear registro de agotado
+                if producto.cantidad_disponible == 0:
+                    producto.estado = False
+
+                    # Crear registro de producto agotado
+                    ProductoAgotado.objects.create(
+                        producto=producto,
+                        cantidad_inicial=producto.cantidad_disponible + cantidad,  # Cantidad antes de esta venta
+                        cantidad_vendida=cantidad,
+                        fecha_inicio=producto.created_at
+                    )
+
                 producto.save()
 
                 total += detalle.subtotal
@@ -244,15 +270,28 @@ class LogoutSerializer(serializers.Serializer):
 class ProductoAgotadoSerializer(serializers.ModelSerializer):
     """Serializador para productos agotados"""
     producto = ProductoSerializer(read_only=True)
+    producto_id = serializers.IntegerField(write_only=True)
     categoria = serializers.CharField(source='producto.categoria.nombre', read_only=True)
 
     class Meta:
         model = ProductoAgotado
         fields = [
-            'id', 'producto', 'categoria', 'fecha_inicio', 'fecha_agotado',
+            'id', 'producto', 'producto_id', 'categoria', 'fecha_inicio', 'fecha_agotado',
             'cantidad_inicial', 'cantidad_vendida', 'tiempo_vida'
         ]
         read_only_fields = ['fecha_agotado', 'tiempo_vida']
+
+    def create(self, validated_data):
+        producto_id = validated_data.pop('producto_id')
+        producto = Producto.objects.get(id=producto_id)
+
+        # Crear el registro de producto agotado
+        producto_agotado = ProductoAgotado.objects.create(
+            producto=producto,
+            **validated_data
+        )
+
+        return producto_agotado
 
 
 class ReporteVentasSerializer(serializers.Serializer):
