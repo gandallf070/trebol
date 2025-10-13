@@ -18,21 +18,15 @@ function App() {
       <AuthProvider>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <RootLayout />
-              </ProtectedRoute>
-            }
-          >
+          <Route path="/" element={
+            <ProtectedRoute>
+              <RootLayout />
+            </ProtectedRoute>
+          }>
             <Route index element={<HomePage />} />
             <Route path="clientes" element={<ClientsPage />} />
             <Route path="inventario/productos" element={<ProductsPage />} />
-            <Route
-              path="productos-agotados"
-              element={<ProductosAgotadosPage />}
-            />
+            <Route path="productos-agotados" element={<ProductosAgotadosPage />} />
             <Route path="inventario/categorias" element={<CategoriesPage />} />
             <Route path="ventas" element={<SalesPage />} />
             <Route path="reportes" element={<ReportsPage />} />

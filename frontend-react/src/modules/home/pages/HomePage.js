@@ -15,11 +15,11 @@ const HomePage = () => {
     salesTrend: { data: [], labels: [] },
     categoryDistribution: [],
     topProducts: { products: [], quantities: [] },
-    recentSales: [],
+    recentSales: []
   });
   const [loading, setLoading] = useState(true);
   const [activeSection, setActiveSection] = useState('general_report'); // Cambiado a 'general_report'
-
+   
   useEffect(() => {
     if (user) {
       fetchDashboardData();
@@ -39,7 +39,7 @@ const HomePage = () => {
           salesTrendRes,
           categoryDistributionRes,
           topProductsRes,
-          recentSalesRes,
+          recentSalesRes
         ] = await Promise.all([
           api.get('reports/dashboard/total-inventory/'),
           api.get('reports/dashboard/daily-sales/'),
@@ -47,7 +47,7 @@ const HomePage = () => {
           api.get('reports/dashboard/sales-trend/'),
           api.get('reports/dashboard/category-distribution/'),
           api.get('reports/dashboard/top-products/'),
-          api.get('reports/dashboard/recent-sales/'),
+          api.get('reports/dashboard/recent-sales/')
         ]);
 
         setDashboardData({
@@ -57,14 +57,12 @@ const HomePage = () => {
           salesTrend: salesTrendRes.data,
           categoryDistribution: categoryDistributionRes.data,
           topProducts: topProductsRes.data,
-          recentSales: recentSalesRes.data,
+          recentSales: recentSalesRes.data
         });
       } else {
         // Si es vendedor, solo cargar datos accesibles
         try {
-          const recentSalesRes = await api.get(
-            'reports/dashboard/recent-sales/'
-          );
+          const recentSalesRes = await api.get('reports/dashboard/recent-sales/');
           setDashboardData({
             totalInventory: { total: 0, trend: 0 },
             dailySales: { amount: 0, count: 0, trend: 0 },
@@ -72,7 +70,7 @@ const HomePage = () => {
             salesTrend: { data: [], labels: [] },
             categoryDistribution: [],
             topProducts: { products: [], quantities: [] },
-            recentSales: recentSalesRes.data,
+            recentSales: recentSalesRes.data
           });
         } catch (error) {
           console.log('Error al cargar ventas recientes para vendedor:', error);
@@ -84,7 +82,7 @@ const HomePage = () => {
             salesTrend: { data: [], labels: [] },
             categoryDistribution: [],
             topProducts: { products: [], quantities: [] },
-            recentSales: [],
+            recentSales: []
           });
         }
       }
@@ -98,7 +96,7 @@ const HomePage = () => {
         salesTrend: { data: [], labels: [] },
         categoryDistribution: [],
         topProducts: { products: [], quantities: [] },
-        recentSales: [],
+        recentSales: []
       });
     } finally {
       setLoading(false);
@@ -128,9 +126,7 @@ const HomePage = () => {
               </div>
               <div style={styles.kpiCard}>
                 <h3 style={styles.kpiTitle}>Mis Ventas Recientes</h3>
-                <div style={styles.kpiValue}>
-                  {dashboardData.recentSales.length}
-                </div>
+                <div style={styles.kpiValue}>{dashboardData.recentSales.length}</div>
                 <div style={styles.kpiTrend}>Últimas ventas</div>
               </div>
               <div style={styles.kpiCard}>
@@ -142,9 +138,17 @@ const HomePage = () => {
           );
         }
       case 'monthly_report':
-        return <DashboardMonthlyReport styles={styles} />;
+        return (
+          <DashboardMonthlyReport
+            styles={styles}
+          />
+        );
       case 'distribution':
-        return <DashboardDistribution styles={styles} />;
+        return (
+          <DashboardDistribution
+            styles={styles}
+          />
+        );
       case 'products_sales':
         return (
           <DashboardProductsSales
@@ -159,22 +163,18 @@ const HomePage = () => {
 
   if (loading) {
     return (
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: 'calc(100vh - 60px)',
-          backgroundColor: '#f8f9fa',
-        }}
-      >
-        <div
-          style={{
-            fontSize: '18px',
-            color: '#28a745',
-            textAlign: 'center',
-          }}
-        >
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: 'calc(100vh - 60px)',
+        backgroundColor: '#f8f9fa'
+      }}>
+        <div style={{
+          fontSize: '18px',
+          color: '#28a745',
+          textAlign: 'center'
+        }}>
           <div>Cargando dashboard...</div>
           <div style={{ fontSize: '14px', marginTop: '10px' }}>
             Obteniendo datos del usuario
@@ -185,143 +185,121 @@ const HomePage = () => {
   }
 
   return (
-    <div
-      style={{
-        padding: '20px',
-        backgroundColor: '#f8f9fa',
-        minHeight: 'calc(100vh - 60px)',
-        margin: 0,
-      }}
-    >
-      <h1
-        style={{
-          textAlign: 'center',
-          color: '#28a745',
-          marginBottom: '30px',
-          fontSize: '32px',
-          fontWeight: 'bold',
-        }}
-      >
+    <div style={{
+      padding: '20px',
+      backgroundColor: '#f8f9fa',
+      minHeight: 'calc(100vh - 60px)',
+      margin: 0
+    }}>
+      <h1 style={{
+        textAlign: 'center',
+        color: '#28a745',
+        marginBottom: '30px',
+        fontSize: '32px',
+        fontWeight: 'bold'
+      }}>
         Panel de Administración - Joyería Trébol
       </h1>
 
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          marginBottom: '20px',
-          gap: '10px',
-          flexWrap: 'wrap',
-        }}
-      >
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        marginBottom: '20px',
+        gap: '10px',
+        flexWrap: 'wrap'
+      }}>
         <button
-          style={
-            activeSection === 'general_report'
-              ? {
-                  padding: '10px 20px',
-                  fontSize: '16px',
-                  cursor: 'pointer',
-                  backgroundColor: '#28a745',
-                  border: '1px solid #28a745',
-                  borderRadius: '5px',
-                  color: '#fff',
-                  transition: 'background-color 0.3s ease',
-                }
-              : {
-                  padding: '10px 20px',
-                  fontSize: '16px',
-                  cursor: 'pointer',
-                  backgroundColor: '#e9ecef',
-                  border: '1px solid #ced4da',
-                  borderRadius: '5px',
-                  color: '#495057',
-                  transition: 'background-color 0.3s ease',
-                }
-          }
+          style={activeSection === 'general_report' ? {
+            padding: '10px 20px',
+            fontSize: '16px',
+            cursor: 'pointer',
+            backgroundColor: '#28a745',
+            border: '1px solid #28a745',
+            borderRadius: '5px',
+            color: '#fff',
+            transition: 'background-color 0.3s ease',
+          } : {
+            padding: '10px 20px',
+            fontSize: '16px',
+            cursor: 'pointer',
+            backgroundColor: '#e9ecef',
+            border: '1px solid #ced4da',
+            borderRadius: '5px',
+            color: '#495057',
+            transition: 'background-color 0.3s ease',
+          }}
           onClick={() => setActiveSection('general_report')}
         >
           Informe General
         </button>
         <button
-          style={
-            activeSection === 'monthly_report'
-              ? {
-                  padding: '10px 20px',
-                  fontSize: '16px',
-                  cursor: 'pointer',
-                  backgroundColor: '#28a745',
-                  border: '1px solid #28a745',
-                  borderRadius: '5px',
-                  color: '#fff',
-                  transition: 'background-color 0.3s ease',
-                }
-              : {
-                  padding: '10px 20px',
-                  fontSize: '16px',
-                  cursor: 'pointer',
-                  backgroundColor: '#e9ecef',
-                  border: '1px solid #ced4da',
-                  borderRadius: '5px',
-                  color: '#495057',
-                  transition: 'background-color 0.3s ease',
-                }
-          }
+          style={activeSection === 'monthly_report' ? {
+            padding: '10px 20px',
+            fontSize: '16px',
+            cursor: 'pointer',
+            backgroundColor: '#28a745',
+            border: '1px solid #28a745',
+            borderRadius: '5px',
+            color: '#fff',
+            transition: 'background-color 0.3s ease',
+          } : {
+            padding: '10px 20px',
+            fontSize: '16px',
+            cursor: 'pointer',
+            backgroundColor: '#e9ecef',
+            border: '1px solid #ced4da',
+            borderRadius: '5px',
+            color: '#495057',
+            transition: 'background-color 0.3s ease',
+          }}
           onClick={() => setActiveSection('monthly_report')}
         >
           Reporte Mensual
         </button>
         <button
-          style={
-            activeSection === 'distribution'
-              ? {
-                  padding: '10px 20px',
-                  fontSize: '16px',
-                  cursor: 'pointer',
-                  backgroundColor: '#28a745',
-                  border: '1px solid #28a745',
-                  borderRadius: '5px',
-                  color: '#fff',
-                  transition: 'background-color 0.3s ease',
-                }
-              : {
-                  padding: '10px 20px',
-                  fontSize: '16px',
-                  cursor: 'pointer',
-                  backgroundColor: '#e9ecef',
-                  border: '1px solid #ced4da',
-                  borderRadius: '5px',
-                  color: '#495057',
-                  transition: 'background-color 0.3s ease',
-                }
-          }
+          style={activeSection === 'distribution' ? {
+            padding: '10px 20px',
+            fontSize: '16px',
+            cursor: 'pointer',
+            backgroundColor: '#28a745',
+            border: '1px solid #28a745',
+            borderRadius: '5px',
+            color: '#fff',
+            transition: 'background-color 0.3s ease',
+          } : {
+            padding: '10px 20px',
+            fontSize: '16px',
+            cursor: 'pointer',
+            backgroundColor: '#e9ecef',
+            border: '1px solid #ced4da',
+            borderRadius: '5px',
+            color: '#495057',
+            transition: 'background-color 0.3s ease',
+          }}
           onClick={() => setActiveSection('distribution')}
         >
           Distribución
         </button>
         <button
-          style={
-            activeSection === 'products_sales'
-              ? {
-                  padding: '10px 20px',
-                  fontSize: '16px',
-                  cursor: 'pointer',
-                  backgroundColor: '#28a745',
-                  border: '1px solid #28a745',
-                  borderRadius: '5px',
-                  color: '#fff',
-                  transition: 'background-color 0.3s ease',
-                }
-              : {
-                  padding: '10px 20px',
-                  fontSize: '16px',
-                  cursor: 'pointer',
-                  backgroundColor: '#e9ecef',
-                  border: '1px solid #ced4da',
-                  borderRadius: '5px',
-                  color: '#495057',
-                  transition: 'background-color 0.3s ease',
-                }
-          }
+          style={activeSection === 'products_sales' ? {
+            padding: '10px 20px',
+            fontSize: '16px',
+            cursor: 'pointer',
+            backgroundColor: '#28a745',
+            border: '1px solid #28a745',
+            borderRadius: '5px',
+            color: '#fff',
+            transition: 'background-color 0.3s ease',
+          } : {
+            padding: '10px 20px',
+            fontSize: '16px',
+            cursor: 'pointer',
+            backgroundColor: '#e9ecef',
+            border: '1px solid #ced4da',
+            borderRadius: '5px',
+            color: '#495057',
+            transition: 'background-color 0.3s ease',
+          }}
           onClick={() => setActiveSection('products_sales')}
         >
           Productos y Ventas
@@ -339,25 +317,25 @@ const styles = {
     backgroundColor: '#f8f9fa',
     minHeight: '100vh',
     marginTop: '0',
-    marginLeft: '0',
+    marginLeft: '0'
   },
   title: {
     textAlign: 'center',
     color: '#28a745',
     marginBottom: '30px',
     fontSize: '32px',
-    fontWeight: 'bold',
+    fontWeight: 'bold'
   },
   loadingContainer: {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
     height: '100vh',
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#f8f9fa'
   },
   loadingSpinner: {
     fontSize: '18px',
-    color: '#28a745',
+    color: '#28a745'
   },
   buttonContainer: {
     display: 'flex',
@@ -389,7 +367,7 @@ const styles = {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
     gap: '20px',
-    marginBottom: '30px',
+    marginBottom: '30px'
   },
   kpiCard: {
     backgroundColor: '#fff',
@@ -397,45 +375,45 @@ const styles = {
     borderRadius: '8px',
     boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
     textAlign: 'center',
-    border: '1px solid #e9ecef',
+    border: '1px solid #e9ecef'
   },
   kpiTitle: {
     color: '#6c757d',
     fontSize: '14px',
     marginBottom: '10px',
     textTransform: 'uppercase',
-    letterSpacing: '1px',
+    letterSpacing: '1px'
   },
   kpiValue: {
     fontSize: '36px',
     fontWeight: 'bold',
     color: '#28a745',
-    marginBottom: '5px',
+    marginBottom: '5px'
   },
   kpiTrend: {
     fontSize: '14px',
-    color: '#28a745',
+    color: '#28a745'
   },
   chartsRow: {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
     gap: '20px',
-    marginBottom: '30px',
+    marginBottom: '30px'
   },
   chartCard: {
     backgroundColor: '#fff',
     padding: '20px',
     borderRadius: '8px',
     boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-    border: '1px solid #e9ecef',
+    border: '1px solid #e9ecef'
   },
   chartContainer: {
     height: '300px',
-    width: '100%',
+    width: '100%'
   },
   barChartContainer: {
     height: '250px',
-    width: '100%',
+    width: '100%'
   },
   chartPlaceholder: {
     height: '200px',
@@ -444,37 +422,37 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    border: '2px dashed #dee2e6',
+    border: '2px dashed #dee2e6'
   },
   chartContent: {
     color: '#6c757d',
-    fontSize: '16px',
+    fontSize: '16px'
   },
   bottomRow: {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
-    gap: '20px',
+    gap: '20px'
   },
   tableCard: {
     backgroundColor: '#fff',
     padding: '20px',
     borderRadius: '8px',
     boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-    border: '1px solid #e9ecef',
+    border: '1px solid #e9ecef'
   },
   tableTitle: {
     color: '#495057',
     marginBottom: '15px',
-    fontSize: '18px',
+    fontSize: '18px'
   },
   tablePlaceholder: {
     maxHeight: '300px',
-    overflowY: 'auto',
+    overflowY: 'auto'
   },
   salesList: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '10px',
+    gap: '10px'
   },
   saleItem: {
     padding: '15px',
@@ -483,15 +461,15 @@ const styles = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    border: '1px solid #e9ecef',
+    border: '1px solid #e9ecef'
   },
   saleInfo: {
-    color: '#495057',
+    color: '#495057'
   },
   saleTotal: {
     fontWeight: 'bold',
-    color: '#28a745',
-  },
+    color: '#28a745'
+  }
 };
 
 export default HomePage;

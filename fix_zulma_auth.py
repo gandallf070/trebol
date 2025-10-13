@@ -1,13 +1,13 @@
 import os
 import django
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "JoyeríaTrebol.settings")
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'JoyeríaTrebol.settings')
 django.setup()
 
 from administracion.models import CustomUser
 
 # Buscar y arreglar usuario zulma
-user = CustomUser.objects.filter(username="zulma").first()
+user = CustomUser.objects.filter(username='zulma').first()
 
 if user:
     print(f"Usuario encontrado: {user.username}")

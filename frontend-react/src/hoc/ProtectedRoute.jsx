@@ -7,22 +7,18 @@ const ProtectedRoute = ({ children }) => {
 
   if (loading) {
     return (
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100vh',
-          backgroundColor: '#f8f9fa',
-        }}
-      >
-        <div
-          style={{
-            fontSize: '18px',
-            color: '#28a745',
-            textAlign: 'center',
-          }}
-        >
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        backgroundColor: '#f8f9fa'
+      }}>
+        <div style={{
+          fontSize: '18px',
+          color: '#28a745',
+          textAlign: 'center'
+        }}>
           <div>Cargando...</div>
           <div style={{ fontSize: '14px', marginTop: '10px' }}>
             Verificando autenticación

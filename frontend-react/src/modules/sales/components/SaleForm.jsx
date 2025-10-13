@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from 'react';
 
-const SaleForm = ({ clients, products, handleSubmit, styles, errors }) => {
+const SaleForm = ({
+  clients,
+  products,
+  handleSubmit,
+  styles,
+  errors
+}) => {
   const [selectedClient, setSelectedClient] = useState('');
   const [saleItems, setSaleItems] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -28,11 +34,11 @@ const SaleForm = ({ clients, products, handleSubmit, styles, errors }) => {
     }
 
     const filtered = products
-      .filter(
-        product =>
-          product.cantidad_disponible > 0 &&
-          (product.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            product.id.toString().includes(searchTerm))
+      .filter(product =>
+        product.cantidad_disponible > 0 && (
+          product.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          product.id.toString().includes(searchTerm)
+        )
       )
       .slice(0, 10); // Limitar a 10 sugerencias
 
@@ -40,7 +46,7 @@ const SaleForm = ({ clients, products, handleSubmit, styles, errors }) => {
     setShowSuggestions(true);
   }, [searchTerm, products]);
 
-  const handleProductSelect = product => {
+  const handleProductSelect = (product) => {
     setSearchTerm(product.nombre);
     setSelectedProduct(product);
     setShowSuggestions(false);
@@ -49,17 +55,14 @@ const SaleForm = ({ clients, products, handleSubmit, styles, errors }) => {
   const handleAddProduct = () => {
     let product = selectedProduct;
     if (!product) {
-      product = products.find(
-        p =>
-          p.nombre.toLowerCase() === searchTerm.toLowerCase().trim() ||
-          p.id.toString() === searchTerm.trim()
+      product = products.find(p =>
+        p.nombre.toLowerCase() === searchTerm.toLowerCase().trim() ||
+        p.id.toString() === searchTerm.trim()
       );
     }
 
     if (!product) {
-      alert(
-        'Producto no encontrado. Selecciona un producto de la lista de sugerencias.'
-      );
+      alert('Producto no encontrado. Selecciona un producto de la lista de sugerencias.');
       return;
     }
 
@@ -73,35 +76,24 @@ const SaleForm = ({ clients, products, handleSubmit, styles, errors }) => {
     const totalQuantity = currentQuantityInSale + currentQuantity;
 
     if (totalQuantity > product.cantidad_disponible) {
-      alert(
-        `No hay suficiente stock. Disponible: ${product.cantidad_disponible}`
-      );
+      alert(`No hay suficiente stock. Disponible: ${product.cantidad_disponible}`);
       return;
     }
 
     if (existingItem) {
-      setSaleItems(prevItems =>
-        prevItems.map(item =>
-          item.product.id === product.id
-            ? {
-                ...item,
-                quantity: totalQuantity,
-                subtotal: parseFloat(product.precio) * totalQuantity,
-              }
-            : item
-        )
-      );
+      setSaleItems(prevItems => prevItems.map(item =>
+        item.product.id === product.id
+          ? { ...item, quantity: totalQuantity, subtotal: parseFloat(product.precio) * totalQuantity }
+          : item
+      ));
     } else {
       const newSubtotal = parseFloat(product.precio) * currentQuantity;
-      setSaleItems(prevItems => [
-        ...prevItems,
-        {
-          product,
-          quantity: currentQuantity,
-          unitPrice: parseFloat(product.precio),
-          subtotal: newSubtotal,
-        },
-      ]);
+      setSaleItems(prevItems => [...prevItems, {
+        product,
+        quantity: currentQuantity,
+        unitPrice: parseFloat(product.precio),
+        subtotal: newSubtotal
+      }]);
     }
 
     setSearchTerm('');
@@ -109,50 +101,44 @@ const SaleForm = ({ clients, products, handleSubmit, styles, errors }) => {
     setCurrentQuantity(1);
   };
 
-  const handleRemoveProduct = productId => {
-    setSaleItems(prevItems =>
-      prevItems.filter(item => item.product.id !== productId)
-    );
+  const handleRemoveProduct = (productId) => {
+    setSaleItems(prevItems => prevItems.filter(item => item.product.id !== productId));
   };
 
   const handleQuantityChange = (productId, change) => {
     setSaleItems(prevItems => {
       // Crear una copia profunda del array anterior para asegurar la inmutabilidad
-      const updatedItems = prevItems
-        .map(item => {
-          if (item.product.id === productId) {
-            const newQuantity = item.quantity + change;
+      const updatedItems = prevItems.map(item => {
+        if (item.product.id === productId) {
+          const newQuantity = item.quantity + change;
 
-            // Validar stock antes de actualizar
-            if (newQuantity > item.product.cantidad_disponible) {
-              alert(
-                `No hay suficiente stock. Disponible: ${item.product.cantidad_disponible}`
-              );
-              return { ...item };
-            }
-
-            if (newQuantity <= 0) {
-              // Producto agotado, no se incluye en la lista
-              return null;
-            }
-
-            // Devolver un objeto nuevo con la cantidad y el subtotal actualizados
-            return {
-              ...item,
-              quantity: newQuantity,
-              subtotal: parseFloat(item.unitPrice) * newQuantity,
-            };
+          // Validar stock antes de actualizar
+          if (newQuantity > item.product.cantidad_disponible) {
+            alert(`No hay suficiente stock. Disponible: ${item.product.cantidad_disponible}`);
+            return { ...item };
           }
-          return { ...item };
-        })
-        .filter(item => item !== null && item.quantity > 0); // Eliminar productos con cantidad cero o null
+
+          if (newQuantity <= 0) {
+            // Producto agotado, no se incluye en la lista
+            return null;
+          }
+
+          // Devolver un objeto nuevo con la cantidad y el subtotal actualizados
+          return {
+            ...item,
+            quantity: newQuantity,
+            subtotal: parseFloat(item.unitPrice) * newQuantity
+          };
+        }
+        return { ...item };
+      }).filter(item => item !== null && item.quantity > 0); // Eliminar productos con cantidad cero o null
 
       // Devolver el nuevo estado. Esto asegura que React detecte el cambio y re-renderice.
       return [...updatedItems];
     });
   };
 
-  const handleFormSubmit = e => {
+  const handleFormSubmit = (e) => {
     e.preventDefault();
 
     if (!selectedClient) {
@@ -171,9 +157,9 @@ const SaleForm = ({ clients, products, handleSubmit, styles, errors }) => {
         producto_id: item.product.id,
         cantidad: item.quantity,
         precio_unitario: parseFloat(item.unitPrice),
-        subtotal: parseFloat(item.subtotal),
+        subtotal: parseFloat(item.subtotal)
       })),
-      total: parseFloat(totalAmount),
+      total: parseFloat(totalAmount)
     };
 
     // Verificar autenticación antes de enviar
@@ -194,17 +180,12 @@ const SaleForm = ({ clients, products, handleSubmit, styles, errors }) => {
       <h2 style={styles.formTitle}>Crear Nueva Venta</h2>
       <form onSubmit={handleFormSubmit} style={styles.form}>
         <div>
-          <label htmlFor="cliente" style={styles.label}>
-            Cliente *
-          </label>
+          <label htmlFor="cliente" style={styles.label}>Cliente *</label>
           <select
             id="cliente"
             value={selectedClient}
-            onChange={e => setSelectedClient(e.target.value)}
-            style={{
-              ...styles.select,
-              borderColor: errors.cliente ? 'red' : '#ccc',
-            }}
+            onChange={(e) => setSelectedClient(e.target.value)}
+            style={{ ...styles.select, borderColor: errors.cliente ? 'red' : '#ccc' }}
             required
           >
             <option value="">Seleccionar cliente...</option>
@@ -214,9 +195,7 @@ const SaleForm = ({ clients, products, handleSubmit, styles, errors }) => {
               </option>
             ))}
           </select>
-          {errors.cliente && (
-            <span style={styles.errorText}>{errors.cliente}</span>
-          )}
+          {errors.cliente && <span style={styles.errorText}>{errors.cliente}</span>}
         </div>
 
         <div style={styles.productSelection}>
@@ -226,12 +205,9 @@ const SaleForm = ({ clients, products, handleSubmit, styles, errors }) => {
               <input
                 type="text"
                 value={searchTerm}
-                onChange={e => {
+                onChange={(e) => {
                   setSearchTerm(e.target.value);
-                  if (
-                    selectedProduct &&
-                    e.target.value !== selectedProduct.nombre
-                  ) {
+                  if (selectedProduct && e.target.value !== selectedProduct.nombre) {
                     setSelectedProduct(null);
                   }
                 }}
@@ -242,23 +218,17 @@ const SaleForm = ({ clients, products, handleSubmit, styles, errors }) => {
               />
               {showSuggestions && filteredProducts.length > 0 && (
                 <div style={styles.suggestionsList}>
-                  {filteredProducts.map(product => (
+                  {filteredProducts.map((product) => (
                     <div
                       key={product.id}
                       style={styles.suggestionItem}
                       onClick={() => handleProductSelect(product)}
                     >
                       <div style={styles.suggestionInfo}>
-                        <span style={styles.suggestionName}>
-                          {product.nombre}
-                        </span>
-                        <span style={styles.suggestionPrice}>
-                          ${parseFloat(product.precio).toFixed(2)}
-                        </span>
+                        <span style={styles.suggestionName}>{product.nombre}</span>
+                        <span style={styles.suggestionPrice}>${parseFloat(product.precio).toFixed(2)}</span>
                       </div>
-                      <div style={styles.suggestionStock}>
-                        Stock: {product.cantidad_disponible}
-                      </div>
+                      <div style={styles.suggestionStock}>Stock: {product.cantidad_disponible}</div>
                     </div>
                   ))}
                 </div>
@@ -268,7 +238,7 @@ const SaleForm = ({ clients, products, handleSubmit, styles, errors }) => {
               type="number"
               min="1"
               value={currentQuantity}
-              onChange={e => setCurrentQuantity(parseInt(e.target.value) || 1)}
+              onChange={(e) => setCurrentQuantity(parseInt(e.target.value) || 1)}
               style={styles.quantityInput}
               placeholder="Cantidad"
             />
@@ -283,30 +253,23 @@ const SaleForm = ({ clients, products, handleSubmit, styles, errors }) => {
           </div>
         </div>
 
-        <div
-          style={styles.saleItems}
-          key={saleItems.map(i => i.product.id).join('-') + '-' + totalAmount}
-        >
+        <div style={styles.saleItems} key={saleItems.map(i => i.product.id).join('-') + '-' + totalAmount}>
           <h3 style={styles.sectionTitle}>Productos en la Venta</h3>
           <div style={styles.itemsList}>
             {saleItems.length === 0 ? (
               <div style={styles.emptyCart}>No hay productos agregados.</div>
             ) : (
-              saleItems.map(item => (
+              saleItems.map((item) => (
                 <div key={item.product.id} style={styles.saleItem}>
                   <div style={styles.itemInfo}>
                     <span style={styles.itemName}>{item.product.nombre}</span>
-                    <span style={styles.itemPrice}>
-                      ${parseFloat(item.unitPrice).toFixed(2)}
-                    </span>
+                    <span style={styles.itemPrice}>${parseFloat(item.unitPrice).toFixed(2)}</span>
                   </div>
                   <div style={styles.itemControls}>
                     <div style={styles.buttonGroup}>
                       <button
                         type="button"
-                        onClick={() =>
-                          handleQuantityChange(item.product.id, -1)
-                        }
+                        onClick={() => handleQuantityChange(item.product.id, -1)}
                         style={styles.reduceButton}
                         title="Reducir cantidad en 1"
                       >
@@ -322,9 +285,7 @@ const SaleForm = ({ clients, products, handleSubmit, styles, errors }) => {
                         +
                       </button>
                     </div>
-                    <span style={styles.itemSubtotal}>
-                      Subtotal: ${parseFloat(item.subtotal).toFixed(2)}
-                    </span>
+                    <span style={styles.itemSubtotal}>Subtotal: ${parseFloat(item.subtotal).toFixed(2)}</span>
                     <button
                       type="button"
                       onClick={() => handleRemoveProduct(item.product.id)}

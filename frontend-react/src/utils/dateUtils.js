@@ -7,7 +7,7 @@
  * @param {string|Date} fechaString - La fecha a formatear
  * @returns {string} - Fecha formateada en formato dd/mm/aaaa hh:mm
  */
-export const formatearFecha = fechaString => {
+export const formatearFecha = (fechaString) => {
   if (!fechaString) return '';
 
   const fecha = new Date(fechaString);
@@ -32,7 +32,7 @@ export const formatearFecha = fechaString => {
  * @param {string|Date} fechaString - La fecha a formatear
  * @returns {string} - Fecha formateada en formato dd/mm/aaaa
  */
-export const formatearFechaSoloFecha = fechaString => {
+export const formatearFechaSoloFecha = (fechaString) => {
   if (!fechaString) return '';
 
   const fecha = new Date(fechaString);
@@ -71,7 +71,7 @@ export const limpiarCacheNavegador = () => {
  * @param {string} fechaString - Fecha en formato dd/mm/aaaa
  * @returns {Date|null} - Objeto Date o null si es inválido
  */
-export const parsearFechaDDMMAAAA = fechaString => {
+export const parsearFechaDDMMAAAA = (fechaString) => {
   if (!fechaString) return null;
 
   const partes = fechaString.split('/');

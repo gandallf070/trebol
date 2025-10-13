@@ -6,7 +6,9 @@ import ResponsiveNav from '../components/ResponsiveNav';
 const RootLayout = () => {
   const { user } = useAuth();
 
-  return <ResponsiveNav />;
+  return (
+    <ResponsiveNav />
+  );
 };
 
 export default RootLayout;

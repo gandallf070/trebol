@@ -9,7 +9,6 @@ import json
 import sys
 from datetime import datetime
 
-
 class APITester:
     def __init__(self, base_url="http://localhost:8000"):
         self.base_url = base_url
@@ -26,21 +25,23 @@ class APITester:
         try:
             if data:
                 response = self.session.request(
-                    method=method, url=url, headers=headers or {}, json=data
+                    method=method,
+                    url=url,
+                    headers=headers or {},
+                    json=data
                 )
             else:
                 response = self.session.request(
-                    method=method, url=url, headers=headers or {}
+                    method=method,
+                    url=url,
+                    headers=headers or {}
                 )
 
             if response.status_code == expected_status:
                 self.log(f"✅ {method} {url} -> {response.status_code}", "SUCCESS")
                 return response
             else:
-                self.log(
-                    f"❌ {method} {url} -> {response.status_code} (esperado: {expected_status})",
-                    "ERROR",
-                )
+                self.log(f"❌ {method} {url} -> {response.status_code} (esperado: {expected_status})", "ERROR")
                 self.log(f"   Respuesta: {response.text}", "ERROR")
                 return None
 
@@ -57,7 +58,7 @@ class APITester:
             "POST",
             f"{self.base_url}/api/token/",
             data={"username": "admin2", "password": "admin123456"},
-            expected_status=200,
+            expected_status=200
         )
 
         if response:
@@ -70,7 +71,7 @@ class APITester:
             "POST",
             f"{self.base_url}/api/token/",
             data={"username": "testuser2", "password": "newpass123"},
-            expected_status=200,
+            expected_status=200
         )
 
         if response:
@@ -85,21 +86,14 @@ class APITester:
         headers_admin = {"Authorization": f"Bearer {self.admin_token}"}
 
         # 1. Listar clientes
-        self.test_endpoint(
-            "GET", f"{self.base_url}/api/clients/", headers=headers_admin
-        )
+        self.test_endpoint("GET", f"{self.base_url}/api/clients/", headers=headers_admin)
 
         # 2. Crear cliente
         self.test_endpoint(
             "POST",
             f"{self.base_url}/api/clients/",
             headers=headers_admin,
-            data={
-                "ci": "9999999",
-                "nombre": "Cliente",
-                "apellido": "Prueba",
-                "telefono": "555-9999",
-            },
+            data={"ci": "9999999", "nombre": "Cliente", "apellido": "Prueba", "telefono": "555-9999"}
         )
 
         # 3. Crear categoría (solo admin)
@@ -107,7 +101,7 @@ class APITester:
             "POST",
             f"{self.base_url}/api/inventario/categories/",
             headers=headers_admin,
-            data={"nombre": "Pruebas", "descripcion": "Categoría de prueba"},
+            data={"nombre": "Pruebas", "descripcion": "Categoría de prueba"}
         )
 
         # 4. Crear producto (solo admin)
@@ -121,8 +115,8 @@ class APITester:
                 "categoria": 1,
                 "precio": 100.00,
                 "cantidad_disponible": 20,
-                "estado": True,
-            },
+                "estado": True
+            }
         )
 
     def test_sales(self):
@@ -137,7 +131,12 @@ class APITester:
             "POST",
             f"{self.base_url}/api/sales/",
             headers=headers_admin,
-            data={"cliente_id": 1, "detalles": [{"producto_id": 1, "cantidad": 1}]},
+            data={
+                "cliente_id": 1,
+                "detalles": [
+                    {"producto_id": 1, "cantidad": 1}
+                ]
+            }
         )
 
         if response:
@@ -146,17 +145,11 @@ class APITester:
             self.log(f"Venta creada con ID: {venta_id}")
 
             # 2. Listar ventas
-            self.test_endpoint(
-                "GET", f"{self.base_url}/api/sales/", headers=headers_admin
-            )
+            self.test_endpoint("GET", f"{self.base_url}/api/sales/", headers=headers_admin)
 
             # 3. Ver detalle de venta
             if venta_id:
-                self.test_endpoint(
-                    "GET",
-                    f"{self.base_url}/api/sales/{venta_id}/",
-                    headers=headers_admin,
-                )
+                self.test_endpoint("GET", f"{self.base_url}/api/sales/{venta_id}/", headers=headers_admin)
 
     def test_reports(self):
         """Prueba el sistema de reportes"""
@@ -169,7 +162,7 @@ class APITester:
             "GET",
             f"{self.base_url}/api/reports/sales/?formato=csv",
             headers=headers_admin,
-            expected_status=200,
+            expected_status=200
         )
 
         if response:
@@ -180,7 +173,7 @@ class APITester:
             "GET",
             f"{self.base_url}/api/reports/sales/?formato=pdf",
             headers=headers_admin,
-            expected_status=200,
+            expected_status=200
         )
 
         if response:
@@ -199,7 +192,7 @@ class APITester:
             "GET",
             f"{self.base_url}/api/reports/sales/?formato=csv",
             headers=headers_vendedor,
-            expected_status=403,
+            expected_status=403
         )
 
         # 3. Intentar modificar venta (debe fallar)
@@ -209,7 +202,7 @@ class APITester:
             f"{self.base_url}/api/sales/1/",
             headers=headers_admin,
             data={"cliente_id": 2},
-            expected_status=405,
+            expected_status=405
         )
 
     def run_all_tests(self):
@@ -225,7 +218,6 @@ class APITester:
         self.log("✅ Verificación completa finalizada!")
         self.log("🎉 La API REST está funcionando correctamente!")
 
-
 def main():
     """Función principal"""
     print("🔍 Verificación Automática de la API REST - JoyeríaTrebol")
@@ -233,7 +225,6 @@ def main():
 
     tester = APITester()
     tester.run_all_tests()
-
 
 if __name__ == "__main__":
     main()

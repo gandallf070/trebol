@@ -1,26 +1,26 @@
 import os
 import django
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "JoyeríaTrebol.settings")
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'JoyeríaTrebol.settings')
 django.setup()
 
 from administracion.models import CustomUser
 from django.contrib.auth.hashers import make_password
 
 # Buscar y modificar usuario zulma
-user = CustomUser.objects.filter(username="zulma").first()
+user = CustomUser.objects.filter(username='zulma').first()
 
 if user:
     print(f"Usuario encontrado: {user.username}")
     print(f"Rol actual: {user.role}")
 
     # Cambiar rol a vendedor
-    user.role = "vendedor"
+    user.role = 'vendedor'
     # Quitar permisos de admin
     user.is_staff = False
     user.is_superuser = False
     # Establecer contraseña admin123
-    user.password = make_password("admin123")
+    user.password = make_password('admin123')
     user.save()
 
     print(f"Usuario modificado exitosamente:")

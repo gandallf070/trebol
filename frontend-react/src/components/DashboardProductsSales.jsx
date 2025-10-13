@@ -14,7 +14,7 @@ const DashboardProductsSales = ({ dashboardData, styles }) => {
         <h3 style={styles.tableTitle}>Últimas Ventas</h3>
         <div style={styles.tablePlaceholder}>
           <div style={styles.salesList}>
-            {dashboardData.recentSales.slice(0, 5).map(sale => (
+            {dashboardData.recentSales.slice(0, 5).map((sale) => (
               <div key={sale.id} style={styles.saleItem}>
                 <div style={styles.saleInfo}>
                   <strong>Venta #{sale.id}</strong> - {sale.cliente}

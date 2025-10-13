@@ -23,7 +23,7 @@ const CategoryList = ({ categories, handleEdit, handleDelete, styles }) => {
           </tr>
         </thead>
         <tbody>
-          {categories.map(category => (
+          {categories.map((category) => (
             <tr key={category.id}>
               <td style={styles.td}>{category.id}</td>
               <td style={styles.td}>{category.nombre}</td>

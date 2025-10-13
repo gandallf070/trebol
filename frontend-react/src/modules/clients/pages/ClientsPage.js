@@ -7,12 +7,7 @@ import ClientForm from '../components/ClientForm';
 const ClientsPage = () => {
   const { authTokens, user } = useAuth();
   const [clients, setClients] = useState([]);
-  const [newClient, setNewClient] = useState({
-    ci: '',
-    nombre: '',
-    apellido: '',
-    telefono: '',
-  });
+  const [newClient, setNewClient] = useState({ ci: '', nombre: '', apellido: '', telefono: '' });
   const [editingClient, setEditingClient] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -30,6 +25,8 @@ const ClientsPage = () => {
       fetchClients();
     }
   }, [user, currentPage]);
+
+
 
   const fetchClients = async () => {
     setLoading(true);
@@ -74,7 +71,7 @@ const ClientsPage = () => {
     }
   };
 
-  const handleInputChange = e => {
+  const handleInputChange = (e) => {
     const { name, value } = e.target;
     if (editingClient) {
       setEditingClient({ ...editingClient, [name]: value });
@@ -85,12 +82,12 @@ const ClientsPage = () => {
     if (name === 'telefono') setTelefonoError(null);
   };
 
-  const handleBlur = e => {
+  const handleBlur = (e) => {
     const { name, value } = e.target;
     validateClientUniqueness(name, value);
   };
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
     setCiError(null);
@@ -99,10 +96,7 @@ const ClientsPage = () => {
     const clientToSave = editingClient || newClient;
 
     const isCiUnique = await validateClientUniqueness('ci', clientToSave.ci);
-    const isTelefonoUnique = await validateClientUniqueness(
-      'telefono',
-      clientToSave.telefono
-    );
+    const isTelefonoUnique = await validateClientUniqueness('telefono', clientToSave.telefono);
 
     if (!isCiUnique || !isTelefonoUnique) {
       return;
@@ -124,14 +118,14 @@ const ClientsPage = () => {
     }
   };
 
-  const handleEdit = client => {
+  const handleEdit = (client) => {
     setEditingClient({ ...client });
     setActiveClientSection('new_client');
     setCiError(null);
     setTelefonoError(null);
   };
 
-  const handleDelete = async clientId => {
+  const handleDelete = async (clientId) => {
     if (window.confirm('¿Estás seguro de que quieres eliminar este cliente?')) {
       setError(null);
       try {
@@ -174,14 +168,16 @@ const ClientsPage = () => {
     }
   };
 
-  const handleSearchInputChange = e => {
+  const handleSearchInputChange = (e) => {
     setSearchCI(e.target.value);
     if (e.target.value.length < 3) {
       setSearchResults([]);
     }
   };
 
-  const handlePageChange = page => {
+
+
+  const handlePageChange = (page) => {
     if (page > 0 && page <= totalPages) {
       setCurrentPage(page);
     }
@@ -223,7 +219,7 @@ const ClientsPage = () => {
                   disabled={isSearching || searchCI.length < 3}
                   style={{
                     ...styles.searchButton,
-                    opacity: isSearching || searchCI.length < 3 ? 0.5 : 1,
+                    opacity: isSearching || searchCI.length < 3 ? 0.5 : 1
                   }}
                 >
                   {isSearching ? 'Buscando...' : 'Buscar'}
@@ -247,24 +243,12 @@ const ClientsPage = () => {
             {searchResults.length > 0 ? (
               <div>
                 <h3 style={styles.resultsTitle}>
-                  Resultados de búsqueda ({searchResults.length} cliente
-                  {searchResults.length !== 1 ? 's' : ''} encontrado
-                  {searchResults.length !== 1 ? 's' : ''})
+                  Resultados de búsqueda ({searchResults.length} cliente{searchResults.length !== 1 ? 's' : ''} encontrado{searchResults.length !== 1 ? 's' : ''})
                 </h3>
-                <ClientList
-                  clients={searchResults}
-                  handleEdit={handleEdit}
-                  handleDelete={handleDelete}
-                  styles={styles}
-                />
+                <ClientList clients={searchResults} handleEdit={handleEdit} handleDelete={handleDelete} styles={styles} />
               </div>
             ) : (
-              <ClientList
-                clients={clients}
-                handleEdit={handleEdit}
-                handleDelete={handleDelete}
-                styles={styles}
-              />
+              <ClientList clients={clients} handleEdit={handleEdit} handleDelete={handleDelete} styles={styles} />
             )}
 
             {/* Paginación - solo mostrar si no hay búsqueda activa */}
@@ -277,9 +261,7 @@ const ClientsPage = () => {
                 >
                   Anterior
                 </button>
-                <span style={styles.paginationText}>
-                  Página {currentPage} de {totalPages}
-                </span>
+                <span style={styles.paginationText}>Página {currentPage} de {totalPages}</span>
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === totalPages}
@@ -305,11 +287,7 @@ const ClientsPage = () => {
 
       <div style={styles.buttonContainer}>
         <button
-          style={
-            activeClientSection === 'new_client'
-              ? styles.activeButton
-              : styles.button
-          }
+          style={activeClientSection === 'new_client' ? styles.activeButton : styles.button}
           onClick={() => {
             setActiveClientSection('new_client');
             setEditingClient(null);
@@ -321,11 +299,7 @@ const ClientsPage = () => {
           Nuevo Cliente
         </button>
         <button
-          style={
-            activeClientSection === 'client_list'
-              ? styles.activeButton
-              : styles.button
-          }
+          style={activeClientSection === 'client_list' ? styles.activeButton : styles.button}
           onClick={() => setActiveClientSection('client_list')}
         >
           Lista de Clientes

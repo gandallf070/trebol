@@ -11,9 +11,7 @@ const CategoryDistributionChart = () => {
 
   const fetchCategoryDistribution = async () => {
     try {
-      const response = await api.get(
-        'reports/dashboard/category-distribution/'
-      );
+      const response = await api.get('reports/dashboard/category-distribution/');
       setData(response.data || []);
     } catch (error) {
       console.error('Error fetching category distribution data:', error);
@@ -25,16 +23,14 @@ const CategoryDistributionChart = () => {
 
   if (loading) {
     return (
-      <div
-        style={{
-          height: '300px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: '#f8f9fa',
-          borderRadius: '4px',
-        }}
-      >
+      <div style={{
+        height: '300px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#f8f9fa',
+        borderRadius: '4px'
+      }}>
         Cargando distribución por categoría...
       </div>
     );
@@ -42,17 +38,15 @@ const CategoryDistributionChart = () => {
 
   if (data.length === 0) {
     return (
-      <div
-        style={{
-          height: '300px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: '#f8f9fa',
-          borderRadius: '4px',
-          color: '#6c757d',
-        }}
-      >
+      <div style={{
+        height: '300px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#f8f9fa',
+        borderRadius: '4px',
+        color: '#6c757d'
+      }}>
         No hay datos disponibles para mostrar
       </div>
     );
@@ -64,31 +58,24 @@ const CategoryDistributionChart = () => {
 
   return (
     <div style={{ height: '300px', width: '100%', padding: '20px' }}>
-      <h4
-        style={{ textAlign: 'center', marginBottom: '20px', color: '#495057' }}
-      >
+      <h4 style={{ textAlign: 'center', marginBottom: '20px', color: '#495057' }}>
         Distribución por Categoría (Total: {total})
       </h4>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
         {data.map((item, index) => {
-          const percentage =
-            total > 0 ? (((item.total || 0) / total) * 100).toFixed(1) : 0;
+          const percentage = total > 0 ? ((item.total || 0) / total * 100).toFixed(1) : 0;
           return (
-            <div
-              key={index}
-              style={{ display: 'flex', alignItems: 'center', gap: '10px' }}
-            >
+            <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <div
                 style={{
                   width: '20px',
                   height: '20px',
                   backgroundColor: colors[index % colors.length],
-                  borderRadius: '4px',
+                  borderRadius: '4px'
                 }}
               />
               <span style={{ flex: 1, color: '#495057' }}>
-                {item.categoria || 'Sin categoría'}: {item.total || 0} productos
-                ({percentage}%)
+                {item.categoria || 'Sin categoría'}: {item.total || 0} productos ({percentage}%)
               </span>
             </div>
           );

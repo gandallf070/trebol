@@ -18,7 +18,7 @@ const ClientList = ({ clients, handleEdit, handleDelete, styles }) => {
             </tr>
           </thead>
           <tbody>
-            {clients.map(client => (
+            {clients.map((client) => (
               <tr key={client.id}>
                 <td style={styles.td}>{client.ci}</td>
                 <td style={styles.td}>{client.nombre}</td>
@@ -27,19 +27,13 @@ const ClientList = ({ clients, handleEdit, handleDelete, styles }) => {
                 <td style={styles.td}>
                   <button
                     onClick={() => handleEdit(client)}
-                    style={{
-                      ...styles.actionButton,
-                      backgroundColor: '#007bff',
-                    }}
+                    style={{ ...styles.actionButton, backgroundColor: '#007bff' }}
                   >
                     Editar
                   </button>
                   <button
                     onClick={() => handleDelete(client.id)}
-                    style={{
-                      ...styles.actionButton,
-                      backgroundColor: '#dc3545',
-                    }}
+                    style={{ ...styles.actionButton, backgroundColor: '#dc3545' }}
                   >
                     Eliminar
                   </button>

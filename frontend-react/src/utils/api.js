@@ -11,7 +11,7 @@ const api = axios.create({
 
 // Interceptor para añadir el token JWT a las peticiones
 api.interceptors.request.use(
-  config => {
+  (config) => {
     const authTokens = localStorage.getItem('authTokens')
       ? JSON.parse(localStorage.getItem('authTokens'))
       : null;
@@ -20,7 +20,7 @@ api.interceptors.request.use(
     }
     return config;
   },
-  error => Promise.reject(error)
+  (error) => Promise.reject(error)
 );
 
 // Función helper para peticiones API según tus especificaciones

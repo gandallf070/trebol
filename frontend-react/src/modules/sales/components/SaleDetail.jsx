@@ -8,9 +8,7 @@ const SaleDetail = ({ sale, onClose, styles }) => {
       <div style={styles.modal}>
         <div style={styles.modalHeader}>
           <h2 style={styles.modalTitle}>Detalle de Venta #{sale.id}</h2>
-          <button onClick={onClose} style={styles.closeButton}>
-            ×
-          </button>
+          <button onClick={onClose} style={styles.closeButton}>×</button>
         </div>
 
         <div style={styles.modalBody}>
@@ -18,16 +16,11 @@ const SaleDetail = ({ sale, onClose, styles }) => {
           <div style={styles.saleInfo}>
             <div style={styles.infoRow}>
               <span style={styles.label}>Cliente:</span>
-              <span style={styles.value}>
-                {sale.cliente?.nombre || 'Cliente no encontrado'}{' '}
-                {sale.cliente?.apellido || ''}
-              </span>
+              <span style={styles.value}>{sale.cliente?.nombre || 'Cliente no encontrado'} {sale.cliente?.apellido || ''}</span>
             </div>
             <div style={styles.infoRow}>
               <span style={styles.label}>Vendedor:</span>
-              <span style={styles.value}>
-                {sale.vendedor || 'Vendedor no encontrado'}
-              </span>
+              <span style={styles.value}>{sale.vendedor || 'Vendedor no encontrado'}</span>
             </div>
             <div style={styles.infoRow}>
               <span style={styles.label}>Fecha:</span>
@@ -35,9 +28,7 @@ const SaleDetail = ({ sale, onClose, styles }) => {
                 {(() => {
                   const fecha = new Date(sale.fecha_venta);
                   const dia = fecha.getDate().toString().padStart(2, '0');
-                  const mes = (fecha.getMonth() + 1)
-                    .toString()
-                    .padStart(2, '0');
+                  const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
                   const anio = fecha.getFullYear();
                   const hora = fecha.getHours().toString().padStart(2, '0');
                   const minuto = fecha.getMinutes().toString().padStart(2, '0');
@@ -65,17 +56,14 @@ const SaleDetail = ({ sale, onClose, styles }) => {
                   </tr>
                 </thead>
                 <tbody>
-                  {sale.detalles &&
-                    sale.detalles.map((detail, index) => (
-                      <tr key={index}>
-                        <td style={styles.td}>
-                          {detail.producto?.nombre || detail.producto_nombre}
-                        </td>
-                        <td style={styles.td}>{detail.cantidad}</td>
-                        <td style={styles.td}>${detail.precio_unitario}</td>
-                        <td style={styles.td}>${detail.subtotal}</td>
-                      </tr>
-                    ))}
+                  {sale.detalles && sale.detalles.map((detail, index) => (
+                    <tr key={index}>
+                      <td style={styles.td}>{detail.producto?.nombre || detail.producto_nombre}</td>
+                      <td style={styles.td}>{detail.cantidad}</td>
+                      <td style={styles.td}>${detail.precio_unitario}</td>
+                      <td style={styles.td}>${detail.subtotal}</td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>

@@ -1,13 +1,13 @@
 import os
 import django
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "JoyeríaTrebol.settings")
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'JoyeríaTrebol.settings')
 django.setup()
 
 from administracion.models import CustomUser
 
 # Buscar usuario zulma
-user = CustomUser.objects.filter(username="zulma").first()
+user = CustomUser.objects.filter(username='zulma').first()
 
 if user:
     print(f"Usuario encontrado:")
@@ -23,5 +23,5 @@ else:
 
 # Listar todos los usuarios para referencia
 print("\nUsuarios existentes:")
-for u in CustomUser.objects.all().order_by("username"):
+for u in CustomUser.objects.all().order_by('username'):
     print(f"  {u.username} - {u.role} - {u.email}")

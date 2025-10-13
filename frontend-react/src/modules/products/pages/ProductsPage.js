@@ -14,14 +14,13 @@ const ProductsPage = () => {
     categoria: '',
     precio: '',
     cantidad_disponible: '',
-    estado: true,
+    estado: true
   });
   const [editingProduct, setEditingProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [errors, setErrors] = useState({});
-  const [activeProductSection, setActiveProductSection] =
-    useState('product_list');
+  const [activeProductSection, setActiveProductSection] = useState('product_list');
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -66,7 +65,7 @@ const ProductsPage = () => {
     }
   }, [user, currentPage, fetchProducts]);
 
-  const handleInputChange = e => {
+  const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     const inputValue = type === 'checkbox' ? checked : value;
 
@@ -82,7 +81,7 @@ const ProductsPage = () => {
     }
   };
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
     setErrors({});
@@ -91,18 +90,11 @@ const ProductsPage = () => {
 
     // Validaciones básicas
     const newErrors = {};
-    if (!productToSave.nombre.trim())
-      newErrors.nombre = 'El nombre es requerido';
-    if (!productToSave.descripcion.trim())
-      newErrors.descripcion = 'La descripción es requerida';
-    if (!productToSave.categoria)
-      newErrors.categoria = 'La categoría es requerida';
-    if (!productToSave.precio || productToSave.precio <= 0)
-      newErrors.precio = 'El precio debe ser mayor a 0';
-    if (
-      !productToSave.cantidad_disponible ||
-      productToSave.cantidad_disponible < 0
-    ) {
+    if (!productToSave.nombre.trim()) newErrors.nombre = 'El nombre es requerido';
+    if (!productToSave.descripcion.trim()) newErrors.descripcion = 'La descripción es requerida';
+    if (!productToSave.categoria) newErrors.categoria = 'La categoría es requerida';
+    if (!productToSave.precio || productToSave.precio <= 0) newErrors.precio = 'El precio debe ser mayor a 0';
+    if (!productToSave.cantidad_disponible || productToSave.cantidad_disponible < 0) {
       newErrors.cantidad_disponible = 'La cantidad debe ser mayor o igual a 0';
     }
 
@@ -113,10 +105,7 @@ const ProductsPage = () => {
 
     try {
       if (editingProduct) {
-        await api.put(
-          `/inventario/products/${editingProduct.id}/`,
-          productToSave
-        );
+        await api.put(`/inventario/products/${editingProduct.id}/`, productToSave);
       } else {
         await api.post('/inventario/products/', productToSave);
       }
@@ -127,7 +116,7 @@ const ProductsPage = () => {
         categoria: '',
         precio: '',
         cantidad_disponible: '',
-        estado: true,
+        estado: true
       });
       setEditingProduct(null);
       fetchProducts();
@@ -142,16 +131,14 @@ const ProductsPage = () => {
     }
   };
 
-  const handleEdit = product => {
+  const handleEdit = (product) => {
     setEditingProduct({ ...product });
     setActiveProductSection('new_product');
     setErrors({});
   };
 
-  const handleDelete = async productId => {
-    if (
-      window.confirm('¿Estás seguro de que quieres eliminar este producto?')
-    ) {
+  const handleDelete = async (productId) => {
+    if (window.confirm('¿Estás seguro de que quieres eliminar este producto?')) {
       setError(null);
       try {
         await api.delete(`/inventario/products/${productId}/`);
@@ -163,12 +150,12 @@ const ProductsPage = () => {
     }
   };
 
-  const handleSearchChange = e => {
+  const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
     setCurrentPage(1); // Reset a primera página cuando se busca
   };
 
-  const handlePageChange = page => {
+  const handlePageChange = (page) => {
     if (page > 0 && page <= totalPages) {
       setCurrentPage(page);
     }
@@ -184,9 +171,7 @@ const ProductsPage = () => {
     setError(null);
 
     try {
-      const response = await api.get(
-        `/inventario/products/?search=${searchTerm}`
-      );
+      const response = await api.get(`/inventario/products/?search=${searchTerm}`);
       setSearchResults(response.data.results);
     } catch (err) {
       setError('Error al buscar productos por nombre.');
@@ -206,7 +191,7 @@ const ProductsPage = () => {
     }
   };
 
-  const handleSearchInputChange = e => {
+  const handleSearchInputChange = (e) => {
     setSearchTerm(e.target.value);
   };
 
@@ -239,14 +224,14 @@ const ProductsPage = () => {
                   value={searchTerm}
                   onChange={handleSearchInputChange}
                   style={styles.searchInput}
-                  onKeyPress={e => e.key === 'Enter' && handleSearchByName()}
+                  onKeyPress={(e) => e.key === 'Enter' && handleSearchByName()}
                 />
                 <button
                   onClick={handleSearchByName}
                   disabled={isSearching || !searchTerm.trim()}
                   style={{
                     ...styles.searchButton,
-                    opacity: isSearching || !searchTerm.trim() ? 0.5 : 1,
+                    opacity: isSearching || !searchTerm.trim() ? 0.5 : 1
                   }}
                 >
                   {isSearching ? 'Buscando...' : 'Buscar'}
@@ -265,26 +250,12 @@ const ProductsPage = () => {
             {searchResults.length > 0 ? (
               <div>
                 <h3 style={styles.resultsTitle}>
-                  Resultados de búsqueda ({searchResults.length} producto
-                  {searchResults.length !== 1 ? 's' : ''} encontrado
-                  {searchResults.length !== 1 ? 's' : ''})
+                  Resultados de búsqueda ({searchResults.length} producto{searchResults.length !== 1 ? 's' : ''} encontrado{searchResults.length !== 1 ? 's' : ''})
                 </h3>
-                <ProductList
-                  products={searchResults}
-                  categories={categories}
-                  handleEdit={handleEdit}
-                  handleDelete={handleDelete}
-                  styles={styles}
-                />
+                <ProductList products={searchResults} categories={categories} handleEdit={handleEdit} handleDelete={handleDelete} styles={styles} />
               </div>
             ) : (
-              <ProductList
-                products={products}
-                categories={categories}
-                handleEdit={handleEdit}
-                handleDelete={handleDelete}
-                styles={styles}
-              />
+              <ProductList products={products} categories={categories} handleEdit={handleEdit} handleDelete={handleDelete} styles={styles} />
             )}
 
             {/* Paginación - solo mostrar si no hay búsqueda activa */}
@@ -297,9 +268,7 @@ const ProductsPage = () => {
                 >
                   Anterior
                 </button>
-                <span style={styles.paginationText}>
-                  Página {currentPage} de {totalPages}
-                </span>
+                <span style={styles.paginationText}>Página {currentPage} de {totalPages}</span>
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === totalPages}
@@ -325,11 +294,7 @@ const ProductsPage = () => {
 
       <div style={styles.buttonContainer}>
         <button
-          style={
-            activeProductSection === 'new_product'
-              ? styles.activeButton
-              : styles.button
-          }
+          style={activeProductSection === 'new_product' ? styles.activeButton : styles.button}
           onClick={() => {
             setActiveProductSection('new_product');
             setEditingProduct(null);
@@ -339,7 +304,7 @@ const ProductsPage = () => {
               categoria: '',
               precio: '',
               cantidad_disponible: '',
-              estado: true,
+              estado: true
             });
             setErrors({});
           }}
@@ -347,11 +312,7 @@ const ProductsPage = () => {
           Nuevo Producto
         </button>
         <button
-          style={
-            activeProductSection === 'product_list'
-              ? styles.activeButton
-              : styles.button
-          }
+          style={activeProductSection === 'product_list' ? styles.activeButton : styles.button}
           onClick={() => setActiveProductSection('product_list')}
         >
           Lista de Productos

@@ -23,16 +23,14 @@ const SalesTrendChart = () => {
 
   if (loading) {
     return (
-      <div
-        style={{
-          height: '300px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: '#f8f9fa',
-          borderRadius: '4px',
-        }}
-      >
+      <div style={{
+        height: '300px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#f8f9fa',
+        borderRadius: '4px'
+      }}>
         Cargando tendencia de ventas...
       </div>
     );
@@ -42,17 +40,15 @@ const SalesTrendChart = () => {
 
   if (salesData.length === 0) {
     return (
-      <div
-        style={{
-          height: '300px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: '#f8f9fa',
-          borderRadius: '4px',
-          color: '#6c757d',
-        }}
-      >
+      <div style={{
+        height: '300px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#f8f9fa',
+        borderRadius: '4px',
+        color: '#6c757d'
+      }}>
         No hay datos de ventas disponibles
       </div>
     );
@@ -64,31 +60,14 @@ const SalesTrendChart = () => {
 
   return (
     <div style={{ height: '300px', width: '100%', padding: '20px' }}>
-      <h4
-        style={{ textAlign: 'center', marginBottom: '20px', color: '#495057' }}
-      >
+      <h4 style={{ textAlign: 'center', marginBottom: '20px', color: '#495057' }}>
         Tendencia de Ventas - 30 Días
       </h4>
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'flex-end',
-          height: '200px',
-          gap: '2px',
-        }}
-      >
+      <div style={{ display: 'flex', alignItems: 'flex-end', height: '200px', gap: '2px' }}>
         {salesData.map((value, index) => {
           const height = maxValue > 0 ? (value / maxValue) * 100 : 0;
           return (
-            <div
-              key={index}
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                flex: 1,
-              }}
-            >
+            <div key={index} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
               <div
                 style={{
                   height: height + '%',
@@ -96,34 +75,30 @@ const SalesTrendChart = () => {
                   backgroundColor: colors[index % colors.length],
                   borderRadius: '2px 2px 0 0',
                   minHeight: '2px',
-                  position: 'relative',
+                  position: 'relative'
                 }}
                 title={`${labels[index] || ''}: Bs ${value.toFixed(2)}`}
               />
-              <div
-                style={{
-                  fontSize: '10px',
-                  color: '#6c757d',
-                  marginTop: '5px',
-                  textAlign: 'center',
-                  transform: 'rotate(-45deg)',
-                  whiteSpace: 'nowrap',
-                }}
-              >
+              <div style={{
+                fontSize: '10px',
+                color: '#6c757d',
+                marginTop: '5px',
+                textAlign: 'center',
+                transform: 'rotate(-45deg)',
+                whiteSpace: 'nowrap'
+              }}>
                 {labels[index] || ''}
               </div>
             </div>
           );
         })}
       </div>
-      <div
-        style={{
-          marginTop: '10px',
-          fontSize: '12px',
-          color: '#6c757d',
-          textAlign: 'center',
-        }}
-      >
+      <div style={{
+        marginTop: '10px',
+        fontSize: '12px',
+        color: '#6c757d',
+        textAlign: 'center'
+      }}>
         Total de días: {salesData.length}
       </div>
     </div>

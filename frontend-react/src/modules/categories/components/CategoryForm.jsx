@@ -8,7 +8,7 @@ const CategoryForm = ({
   setEditingCategory,
   styles,
   errors,
-  handleBlur,
+  handleBlur
 }) => {
   const categoryToEdit = editingCategory || newCategory;
 
@@ -32,14 +32,12 @@ const CategoryForm = ({
             onBlur={handleBlur}
             style={{
               ...styles.input,
-              borderColor: errors.nombre ? 'red' : '#ccc',
+              borderColor: errors.nombre ? 'red' : '#ccc'
             }}
             placeholder="Ingrese el nombre de la categoría"
             required
           />
-          {errors.nombre && (
-            <span style={styles.errorText}>{errors.nombre}</span>
-          )}
+          {errors.nombre && <span style={styles.errorText}>{errors.nombre}</span>}
         </div>
 
         <div>
@@ -54,14 +52,12 @@ const CategoryForm = ({
             onBlur={handleBlur}
             style={{
               ...styles.textarea,
-              borderColor: errors.descripcion ? 'red' : '#ccc',
+              borderColor: errors.descripcion ? 'red' : '#ccc'
             }}
             placeholder="Ingrese una descripción (opcional)"
             rows="3"
           />
-          {errors.descripcion && (
-            <span style={styles.errorText}>{errors.descripcion}</span>
-          )}
+          {errors.descripcion && <span style={styles.errorText}>{errors.descripcion}</span>}
         </div>
 
         <div style={styles.buttonContainer}>
