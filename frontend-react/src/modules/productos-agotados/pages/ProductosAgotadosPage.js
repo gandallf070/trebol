@@ -340,10 +340,7 @@ const ProductosAgotadosPage = () => {
           <h3 style={{ margin: '0 0 15px 0', color: '#495057' }}>📋 Información Adicional</h3>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '15px' }}>
             <div>
-              <strong>Categoría más agotada:</strong> {tendencias.categoriaMasFrecuente}
-            </div>
-            <div>
-              <strong>Productos agotados esta semana:</strong> {tendencias.productosRecientes}
+              <strong>Fecha<br/>Inicio</strong><br/>{tendencias.productosRecientes}
             </div>
             <div>
               <strong>Última actualización:</strong> {new Date().toLocaleString('es-ES')}
