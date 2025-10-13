@@ -38,27 +38,97 @@ const ReportsPage = () => {
     }
   };
 
-  const generarReportePDF = async () => {
+  const generarReportePDF = async (tipo = 'productos-agotados', params = {}) => {
     try {
       setLoading(true);
-      // Usar la URL correcta según la configuración de Django
-      const response = await api.get('/productos-agotados/generar-reporte-pdf/', {
-        responseType: 'blob' // Para manejar archivos binarios
+      console.log(`[FRONTEND] Generando reporte PDF: ${tipo}`, params);
+
+      // Usar fetch directamente para evitar problemas con axios baseURL
+      const token = localStorage.getItem('authTokens')
+        ? JSON.parse(localStorage.getItem('authTokens')).access
+        : null;
+
+      console.log('[FRONTEND] Token disponible:', !!token);
+
+      const headers = {
+        'Content-Type': 'application/json',
+      };
+
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      let url = 'http://127.0.0.1:8000/api/';
+      let filename = '';
+
+      switch (tipo) {
+        case 'productos-agotados':
+          url += 'productos-agotados-pdf/';
+          filename = 'reporte_productos_agotados.pdf';
+          console.log('[FRONTEND] URL productos-agotados:', url);
+          break;
+        case 'informe-diario':
+          url += 'informe-diario-pdf/';
+          filename = 'informe_diario.pdf';
+          console.log('[FRONTEND] URL informe-diario:', url);
+          break;
+        case 'informe-mensual':
+          const fechaInicio = params.fechaInicio || '2025-01-01';
+          const fechaFin = params.fechaFin || '2025-12-31';
+          url += `informe-mensual-pdf/?fecha_inicio=${encodeURIComponent(fechaInicio)}&fecha_fin=${encodeURIComponent(fechaFin)}`;
+          filename = `informe_mensual_${fechaInicio}_${fechaFin}.pdf`;
+          console.log('[FRONTEND] URL informe-mensual:', url);
+          console.log('[FRONTEND] Parámetros fecha:', { fechaInicio, fechaFin });
+          console.log('[FRONTEND] Valores de params:', params);
+          console.log('[FRONTEND] fechaInicio del componente:', fechaInicio);
+          console.log('[FRONTEND] fechaFin del componente:', fechaFin);
+          break;
+        default:
+          url += 'productos-agotados-pdf/';
+          filename = 'reporte.pdf';
+          console.log('[FRONTEND] URL default:', url);
+      }
+
+      console.log('[FRONTEND] URL final:', url);
+      console.log('[FRONTEND] Headers:', headers);
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: headers,
       });
 
+      console.log('[FRONTEND] Respuesta del servidor:', response.status, response.headers);
+      console.log('[FRONTEND] Response ok:', response.ok);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.log('[FRONTEND] Error response text:', errorText);
+        throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`);
+      }
+
+      // Obtener el blob del PDF
+      const blob = await response.blob();
+      console.log('[FRONTEND] Blob size:', blob.size);
+
       // Crear URL para descargar el archivo
-      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const downloadUrl = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', 'reporte_productos_agotados.pdf');
+      link.href = downloadUrl;
+      link.setAttribute('download', filename);
       document.body.appendChild(link);
       link.click();
       link.remove();
-      window.URL.revokeObjectURL(url);
+      window.URL.revokeObjectURL(downloadUrl);
+
+      console.log('[FRONTEND] PDF descargado exitosamente');
     } catch (error) {
+      console.error('[FRONTEND] Error completo:', error);
+
       // Error al generar reporte PDF
-      if (error.response && error.response.status === 404) {
+      if (error.message && error.message.includes('404')) {
         alert('El endpoint para generar el reporte PDF no está disponible. Verifica la configuración del servidor.');
+      } else if (error.message && error.message.includes('403')) {
+        alert('No tienes permisos para generar este reporte.');
       } else {
         alert('Error al generar el reporte PDF: ' + (error.message || 'Error desconocido'));
       }
@@ -176,7 +246,7 @@ const ReportsPage = () => {
                   </p>
                 </div>
                 <button
-                  onClick={generarReportePDF}
+                  onClick={() => generarReportePDF('productos-agotados')}
                   disabled={loading}
                   style={{
                     backgroundColor: '#dc3545',
@@ -429,6 +499,86 @@ const InformeDiario = ({ styles, tendencias }) => {
   const [filtroTipo, setFiltroTipo] = useState('todos'); // 'todos' o 'usuario'
   const [usuarioSeleccionado, setUsuarioSeleccionado] = useState('');
 
+  const generarReportePDF = async (tipo = 'informe-diario') => {
+    try {
+      setLoading(true);
+      console.log(`Generando reporte PDF: ${tipo}`);
+
+      // Usar fetch directamente para evitar problemas con axios baseURL
+      const token = localStorage.getItem('authTokens')
+        ? JSON.parse(localStorage.getItem('authTokens')).access
+        : null;
+
+      const headers = {
+        'Content-Type': 'application/json',
+      };
+
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      let url = 'http://127.0.0.1:8000/api/';
+      let filename = '';
+
+      switch (tipo) {
+        case 'productos-agotados':
+          url += 'productos-agotados-pdf/';
+          filename = 'reporte_productos_agotados.pdf';
+          break;
+        case 'informe-diario':
+          url += 'informe-diario-pdf/';
+          filename = 'informe_diario.pdf';
+          break;
+        case 'informe-mensual':
+          url += 'informe-mensual-pdf/';
+          filename = 'informe_mensual.pdf';
+          break;
+        default:
+          url += 'productos-agotados-pdf/';
+          filename = 'reporte.pdf';
+      }
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: headers,
+      });
+
+      console.log('Respuesta del servidor:', response.status, response.headers);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      // Obtener el blob del PDF
+      const blob = await response.blob();
+
+      // Crear URL para descargar el archivo
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(downloadUrl);
+
+      console.log('PDF descargado exitosamente');
+    } catch (error) {
+      console.error('Error completo:', error);
+
+      // Error al generar reporte PDF
+      if (error.message && error.message.includes('404')) {
+        alert('El endpoint para generar el reporte PDF no está disponible. Verifica la configuración del servidor.');
+      } else if (error.message && error.message.includes('403')) {
+        alert('No tienes permisos para generar este reporte.');
+      } else {
+        alert('Error al generar el reporte PDF: ' + (error.message || 'Error desconocido'));
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     cargarUsuarios();
     cargarVentasDelDia();
@@ -628,11 +778,33 @@ const InformeDiario = ({ styles, tendencias }) => {
         overflow: 'hidden'
       }}>
         <div style={{ padding: '20px' }}>
-          <h3 style={{ margin: '0 0 20px 0', color: '#495057' }}>
-            📋 Ventas del Día {filtroTipo === 'usuario' && usuarioSeleccionado ?
-              `(${usuarios.find(u => u.id.toString() === usuarioSeleccionado)?.username || 'Usuario'})` :
-              '(Todos los usuarios)'} ({ventas.length} registros)
-          </h3>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <h3 style={{ margin: '0', color: '#495057' }}>
+              📋 Ventas del Día {filtroTipo === 'usuario' && usuarioSeleccionado ?
+                `(${usuarios.find(u => u.id.toString() === usuarioSeleccionado)?.username || 'Usuario'})` :
+                '(Todos los usuarios)'} ({ventas.length} registros)
+            </h3>
+            <button
+              onClick={() => generarReportePDF('informe-diario')}
+              disabled={loading}
+              style={{
+                backgroundColor: '#dc3545',
+                color: 'white',
+                padding: '12px 25px',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                fontSize: '14px',
+                fontWeight: 'bold',
+                boxShadow: '0 2px 5px rgba(220,53,69,0.3)',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseOver={(e) => !loading && (e.target.style.backgroundColor = '#c82333')}
+              onMouseOut={(e) => !loading && (e.target.style.backgroundColor = '#dc3545')}
+            >
+              {loading ? '⏳ Generando...' : '📄 Generar PDF'}
+            </button>
+          </div>
 
           {error ? (
             <div style={{
@@ -806,6 +978,105 @@ const InformeMensual = ({ styles, tendencias }) => {
   const [fechaInicio, setFechaInicio] = useState('2000-01-14');
   const [fechaFin, setFechaFin] = useState('2000-12-25');
   const [filtroAplicado, setFiltroAplicado] = useState(true);
+
+  const generarReportePDF = async (tipo = 'informe-mensual', params = {}) => {
+    try {
+      setLoading(true);
+      console.log(`[FRONTEND] Generando reporte PDF: ${tipo}`, params);
+
+      // Usar fetch directamente para evitar problemas con axios baseURL
+      const token = localStorage.getItem('authTokens')
+        ? JSON.parse(localStorage.getItem('authTokens')).access
+        : null;
+
+      console.log('[FRONTEND] Token disponible:', !!token);
+
+      const headers = {
+        'Content-Type': 'application/json',
+      };
+
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      let url = 'http://127.0.0.1:8000/api/';
+      let filename = '';
+
+      switch (tipo) {
+        case 'productos-agotados':
+          url += 'productos-agotados-pdf/';
+          filename = 'reporte_productos_agotados.pdf';
+          console.log('[FRONTEND] URL productos-agotados:', url);
+          break;
+        case 'informe-diario':
+          url += 'informe-diario-pdf/';
+          filename = 'informe_diario.pdf';
+          console.log('[FRONTEND] URL informe-diario:', url);
+          break;
+        case 'informe-mensual':
+          const fechaInicio = params.fechaInicio || '2025-01-01';
+          const fechaFin = params.fechaFin || '2025-12-31';
+          url += `informe-mensual-pdf/?fecha_inicio=${encodeURIComponent(fechaInicio)}&fecha_fin=${encodeURIComponent(fechaFin)}`;
+          filename = `informe_mensual_${fechaInicio}_${fechaFin}.pdf`;
+          console.log('[FRONTEND] URL informe-mensual:', url);
+          console.log('[FRONTEND] Parámetros fecha:', { fechaInicio, fechaFin });
+          console.log('[FRONTEND] Valores de params:', params);
+          console.log('[FRONTEND] fechaInicio del componente:', fechaInicio);
+          console.log('[FRONTEND] fechaFin del componente:', fechaFin);
+          break;
+        default:
+          url += 'productos-agotados-pdf/';
+          filename = 'reporte.pdf';
+          console.log('[FRONTEND] URL default:', url);
+      }
+
+      console.log('[FRONTEND] URL final:', url);
+      console.log('[FRONTEND] Headers:', headers);
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: headers,
+      });
+
+      console.log('[FRONTEND] Respuesta del servidor:', response.status, response.headers);
+      console.log('[FRONTEND] Response ok:', response.ok);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.log('[FRONTEND] Error response text:', errorText);
+        throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`);
+      }
+
+      // Obtener el blob del PDF
+      const blob = await response.blob();
+      console.log('[FRONTEND] Blob size:', blob.size);
+
+      // Crear URL para descargar el archivo
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(downloadUrl);
+
+      console.log('[FRONTEND] PDF descargado exitosamente');
+    } catch (error) {
+      console.error('[FRONTEND] Error completo:', error);
+
+      // Error al generar reporte PDF
+      if (error.message && error.message.includes('404')) {
+        alert('El endpoint para generar el reporte PDF no está disponible. Verifica la configuración del servidor.');
+      } else if (error.message && error.message.includes('403')) {
+        alert('No tienes permisos para generar este reporte.');
+      } else {
+        alert('Error al generar el reporte PDF: ' + (error.message || 'Error desconocido'));
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     cargarVentas();
@@ -1025,9 +1296,31 @@ const InformeMensual = ({ styles, tendencias }) => {
         overflow: 'hidden'
       }}>
         <div style={{ padding: '20px' }}>
-          <h3 style={{ margin: '0 0 20px 0', color: '#495057' }}>
-            📋 Ventas {filtroAplicado ? 'Filtradas' : 'Completas'} ({ventas.length} registros)
-          </h3>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <h3 style={{ margin: '0', color: '#495057' }}>
+              📋 Ventas {filtroAplicado ? 'Filtradas' : 'Completas'} ({ventas.length} registros)
+            </h3>
+            <button
+              onClick={() => generarReportePDF('informe-mensual', { fechaInicio, fechaFin })}
+              disabled={loading}
+              style={{
+                backgroundColor: '#dc3545',
+                color: 'white',
+                padding: '12px 25px',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                fontSize: '14px',
+                fontWeight: 'bold',
+                boxShadow: '0 2px 5px rgba(220,53,69,0.3)',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseOver={(e) => !loading && (e.target.style.backgroundColor = '#c82333')}
+              onMouseOut={(e) => !loading && (e.target.style.backgroundColor = '#dc3545')}
+            >
+              {loading ? '⏳ Generando...' : '📄 Generar PDF'}
+            </button>
+          </div>
 
           {error ? (
             <div style={{

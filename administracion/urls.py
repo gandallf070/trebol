@@ -1,4 +1,4 @@
-from django.urls import path, include
+from django.urls import path, include, re_path
 from rest_framework.routers import DefaultRouter
 from .views import (
     ClienteViewSet, CategoriaViewSet, ProductoViewSet,
@@ -9,7 +9,9 @@ from .views import (
     # Dashboard views
     DashboardTotalInventoryView, DashboardLowStockView, DashboardDailySalesView,
     DashboardSalesTrendView, DashboardCategoryDistributionView,
-    DashboardTopProductsView, DashboardRecentSalesView, TestAuthView
+    DashboardTopProductsView, DashboardRecentSalesView, TestAuthView,
+    # PDF views
+    InformeDiarioPDFView, InformeMensualPDFView
 )
 
 router = DefaultRouter()
@@ -37,7 +39,9 @@ urlpatterns = [
     path('reports/dashboard/category-distribution/', DashboardCategoryDistributionView.as_view(), name='dashboard-category-distribution'),
     path('reports/dashboard/top-products/', DashboardTopProductsView.as_view(), name='dashboard-top-products'),
     path('reports/dashboard/recent-sales/', DashboardRecentSalesView.as_view(), name='dashboard-recent-sales'),
-    path('productos-agotados/generar-reporte-pdf/', ProductoAgotadoReportePDFView.as_view(), name='productos-agotados-pdf'),
+    path('productos-agotados-pdf/', ProductoAgotadoReportePDFView.as_view(), name='productos-agotados-pdf'),
+    path('informe-diario-pdf/', InformeDiarioPDFView.as_view(), name='informe-diario-pdf'),
+    path('informe-mensual-pdf/', InformeMensualPDFView.as_view(), name='informe-mensual-pdf'),
     path('ventas-del-dia/', VentasDelDiaView.as_view(), name='ventas-del-dia'),
     path('test-auth/', TestAuthView.as_view(), name='test-auth'),
 ]
