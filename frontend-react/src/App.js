@@ -11,6 +11,7 @@ import ProductosAgotadosPage from './modules/productos-agotados/pages/ProductosA
 import CategoriesPage from './modules/categories/pages/CategoriesPage';
 import SalesPage from './modules/sales/pages/SalesPage';
 import ReportsPage from './modules/reports/pages/ReportsPage';
+import AdminPage from './modules/admin/pages/AdminPage';
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
             <Route path="inventario/categorias" element={<CategoriesPage />} />
             <Route path="ventas" element={<SalesPage />} />
             <Route path="reportes" element={<ReportsPage />} />
+            <Route path="admin" element={<AdminPage />} />
           </Route>
         </Routes>
       </AuthProvider>

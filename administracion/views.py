@@ -21,7 +21,8 @@ from .serializers import (
     ClienteSerializer, CategoriaSerializer, ProductoSerializer,
     VentaSerializer, VentaCreateSerializer, DetalleVentaSerializer, UserRegistrationSerializer,
     UserProfileSerializer, ChangePasswordSerializer, DevolucionSerializer,
-    LogoutSerializer, ReporteVentasSerializer, ProductoAgotadoSerializer
+    LogoutSerializer, ReporteVentasSerializer, ProductoAgotadoSerializer,
+    AdminPasswordSerializer, UserManagementSerializer, UserListSerializer
 )
 from rest_framework.pagination import PageNumberPagination
 from .permissions import IsAdminOrReadOnly, IsAdminUser, IsVendedorUser, IsGerenteUser
@@ -862,6 +863,155 @@ class LogoutView(APIView):
             return Response(status=status.HTTP_205_RESET_CONTENT)
         except Exception as e:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class AdminAuthView(APIView):
+    """Vista para verificar contraseña de administrador"""
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    serializer_class = AdminPasswordSerializer
+
+    def post(self, request):
+        """Verificar contraseña de administrador"""
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        admin_password = serializer.validated_data['admin_password']
+
+        # Verificar que la contraseña del usuario actual (admin) sea correcta
+        if not request.user.check_password(admin_password):
+            return Response(
+                {"error": "Contraseña de administrador incorrecta"},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        return Response({"message": "Contraseña verificada correctamente"})
+
+
+class UserManagementViewSet(viewsets.ModelViewSet):
+    """ViewSet para gestión completa de usuarios por administradores"""
+    queryset = CustomUser.objects.all()
+    permission_classes = [IsAuthenticated, IsAdminUser]  # Solo administradores pueden acceder
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['username', 'email', 'first_name', 'last_name']
+    ordering_fields = ['username', 'email', 'role', 'fecha_creacion']
+    ordering = ['-fecha_creacion']
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return UserListSerializer
+        return UserManagementSerializer
+
+    def get_queryset(self):
+        queryset = CustomUser.objects.all()
+        # Filtros opcionales
+        role = self.request.GET.get('role')
+        is_active = self.request.GET.get('is_active')
+
+        if role:
+            queryset = queryset.filter(role=role)
+        if is_active is not None:
+            queryset = queryset.filter(is_active=is_active.lower() == 'true')
+
+        return queryset
+
+    def create(self, request, *args, **kwargs):
+        """Crear nuevo usuario - requiere verificación de admin"""
+        # Verificar contraseña de admin primero
+        admin_password = request.data.get('admin_password')
+        if not admin_password:
+            return Response(
+                {"error": "Se requiere contraseña de administrador"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if not request.user.check_password(admin_password):
+            return Response(
+                {"error": "Contraseña de administrador incorrecta"},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        # Remover la contraseña de admin de los datos antes de crear usuario
+        user_data = request.data.copy()
+        user_data.pop('admin_password', None)
+
+        serializer = self.get_serializer(data=user_data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+
+        return Response(
+            UserListSerializer(user).data,
+            status=status.HTTP_201_CREATED
+        )
+
+    def update(self, request, *args, **kwargs):
+        """Actualizar usuario - requiere verificación de admin"""
+        # Verificar contraseña de admin primero
+        admin_password = request.data.get('admin_password')
+        if not admin_password:
+            return Response(
+                {"error": "Se requiere contraseña de administrador"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if not request.user.check_password(admin_password):
+            return Response(
+                {"error": "Contraseña de administrador incorrecta"},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        # Remover la contraseña de admin de los datos antes de actualizar
+        user_data = request.data.copy()
+        user_data.pop('admin_password', None)
+
+        return super().update(request, *args, **kwargs)
+
+    def partial_update(self, request, *args, **kwargs):
+        """Actualización parcial de usuario - requiere verificación de admin"""
+        # Verificar contraseña de admin primero
+        admin_password = request.data.get('admin_password')
+        if not admin_password:
+            return Response(
+                {"error": "Se requiere contraseña de administrador"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if not request.user.check_password(admin_password):
+            return Response(
+                {"error": "Contraseña de administrador incorrecta"},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        # Remover la contraseña de admin de los datos antes de actualizar
+        user_data = request.data.copy()
+        user_data.pop('admin_password', None)
+
+        return super().partial_update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        """Eliminar usuario - requiere verificación de admin"""
+        # Verificar contraseña de admin primero
+        admin_password = request.data.get('admin_password')
+        if not admin_password:
+            return Response(
+                {"error": "Se requiere contraseña de administrador"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if not request.user.check_password(admin_password):
+            return Response(
+                {"error": "Contraseña de administrador incorrecta"},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        # No permitir que un admin se elimine a sí mismo
+        user = self.get_object()
+        if user.id == request.user.id:
+            return Response(
+                {"error": "No puedes eliminar tu propia cuenta"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        return super().destroy(request, *args, **kwargs)
 
 
 class InformeDiarioPDFView(APIView):

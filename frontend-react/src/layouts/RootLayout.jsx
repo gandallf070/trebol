@@ -7,7 +7,9 @@ const RootLayout = () => {
   const { user } = useAuth();
 
   return (
-    <ResponsiveNav />
+    <div>
+      <ResponsiveNav />
+    </div>
   );
 };
 

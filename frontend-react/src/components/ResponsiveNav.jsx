@@ -77,7 +77,9 @@ const ResponsiveNav = () => {
       </aside>
 
       <main className={`rn-main ${isOpen && !isMobile ? 'with-sidebar' : ''}`}>
-        <Outlet />
+        <div className="container-fluid">
+          <Outlet />
+        </div>
       </main>
     </div>
   );

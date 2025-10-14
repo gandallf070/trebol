@@ -11,7 +11,9 @@ from .views import (
     DashboardSalesTrendView, DashboardCategoryDistributionView,
     DashboardTopProductsView, DashboardRecentSalesView, TestAuthView,
     # PDF views
-    InformeDiarioPDFView, InformeMensualPDFView
+    InformeDiarioPDFView, InformeMensualPDFView,
+    # Admin views
+    AdminAuthView, UserManagementViewSet
 )
 
 router = DefaultRouter()
@@ -22,6 +24,7 @@ router.register(r'sales', VentaViewSet)
 router.register(r'sales-details', DetalleVentaViewSet)
 router.register(r'productos-agotados', ProductoAgotadoViewSet)
 router.register(r'users', UserViewSet)
+router.register(r'admin/users', UserManagementViewSet, basename='admin-users')
 
 urlpatterns = [
     path('', include(router.urls)),
@@ -30,6 +33,7 @@ urlpatterns = [
     path('auth/profile/', UserProfileView.as_view(), name='user-profile'),
     path('auth/change-password/', ChangePasswordView.as_view(), name='change-password'),
     path('auth/logout/', LogoutView.as_view(), name='logout'),
+    path('admin/auth/', AdminAuthView.as_view(), name='admin-auth'),
 
     # Dashboard endpoints
     path('reports/dashboard/total-inventory/', DashboardTotalInventoryView.as_view(), name='dashboard-total-inventory'),

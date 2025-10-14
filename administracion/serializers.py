@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.db import transaction
 from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 from .models import Cliente, Categoria, Producto, Venta, DetalleVenta, CustomUser, ProductoAgotado
 
 class ClienteSerializer(serializers.ModelSerializer):
@@ -331,3 +332,67 @@ class DevolucionSerializer(serializers.Serializer):
                 raise serializers.ValidationError(f"Producto con ID {producto_id} no encontrado")
 
         return value
+
+
+class AdminPasswordSerializer(serializers.Serializer):
+    """Serializador para verificar contraseña de administrador"""
+    admin_password = serializers.CharField(
+        write_only=True,
+        required=True,
+        style={'input_type': 'password'},
+        help_text="Contraseña del administrador para autorizar la acción"
+    )
+
+
+class UserManagementSerializer(serializers.ModelSerializer):
+    """Serializador para gestión completa de usuarios por admin"""
+    password = serializers.CharField(
+        write_only=True,
+        required=False,
+        allow_blank=True,
+        style={'input_type': 'password'},
+        help_text="Contraseña del usuario (opcional en actualizaciones)"
+    )
+
+    class Meta:
+        model = CustomUser
+        fields = (
+            'id', 'username', 'email', 'first_name', 'last_name',
+            'role', 'telefono', 'is_active', 'fecha_creacion',
+            'fecha_actualizacion', 'password'
+        )
+        read_only_fields = ('fecha_creacion', 'fecha_actualizacion')
+
+    def create(self, validated_data):
+        password = validated_data.pop('password', None)
+        if not password or not password.strip():
+            raise serializers.ValidationError({'password': ['La contraseña es requerida para crear un nuevo usuario.']})
+        user = CustomUser.objects.create_user(password=password, **validated_data)
+        return user
+
+    def update(self, instance, validated_data):
+        password = validated_data.pop('password', None)
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        if password and password.strip():  # Solo actualizar si hay contraseña no vacía
+            # Aplicar validaciones solo si se proporciona contraseña
+            try:
+                validate_password(password)
+            except ValidationError as e:
+                raise serializers.ValidationError({'password': e.messages})
+            instance.set_password(password)
+        instance.save()
+        return instance
+
+
+class UserListSerializer(serializers.ModelSerializer):
+    """Serializador para listar usuarios en el módulo admin"""
+    role_display = serializers.CharField(source='get_role_display', read_only=True)
+
+    class Meta:
+        model = CustomUser
+        fields = (
+            'id', 'username', 'email', 'first_name', 'last_name',
+            'role', 'role_display', 'telefono', 'is_active',
+            'fecha_creacion', 'fecha_actualizacion'
+        )

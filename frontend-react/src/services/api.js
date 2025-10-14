@@ -17,6 +17,9 @@ api.interceptors.request.use(
       : null;
     if (authTokens?.access) {
       config.headers.Authorization = `Bearer ${authTokens.access}`;
+      console.log('[API] Request interceptor - Token added to request:', config.url);
+    } else {
+      console.log('[API] Request interceptor - No token found for request:', config.url);
     }
     return config;
   },
@@ -28,15 +31,19 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+    
+    console.log('[API] Response interceptor - Error occurred:', error.response?.status, error.config?.url);
 
     // Evitar bucles infinitos si el refresh token también falla
-    if (error.response.status === 401 && originalRequest.url.includes('token/refresh')) {
+    if (error.response?.status === 401 && originalRequest.url.includes('token/refresh')) {
+      console.log('[API] Response interceptor - Refresh token failed, redirecting to login');
       // Redirigir a login si el refresh falla
       window.location.href = '/login';
       return Promise.reject(error);
     }
 
-    if (error.response.status === 401 && !originalRequest._retry) {
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      console.log('[API] Response interceptor - 401 error, attempting token refresh');
       originalRequest._retry = true;
 
       const authTokens = JSON.parse(localStorage.getItem('authTokens'));
@@ -44,24 +51,29 @@ api.interceptors.response.use(
 
       if (refreshToken) {
         try {
+          console.log('[API] Response interceptor - Refreshing token...');
           const response = await axios.post(`${API_URL}token/refresh/`, {
             refresh: refreshToken,
           });
 
           const newAuthTokens = response.data;
           localStorage.setItem('authTokens', JSON.stringify(newAuthTokens));
+          console.log('[API] Response interceptor - Token refreshed successfully');
 
           // Actualizar el header de la petición original y reintentarla
           originalRequest.headers['Authorization'] = `Bearer ${newAuthTokens.access}`;
+          console.log('[API] Response interceptor - Retrying original request:', originalRequest.url);
           return api(originalRequest);
 
         } catch (refreshError) {
-          console.error('Refresh token inválido o expirado.', refreshError);
+          console.error('[API] Response interceptor - Refresh token inválido o expirado:', refreshError);
           // Limpiar tokens y redirigir a login
           localStorage.removeItem('authTokens');
           window.location.href = '/login';
           return Promise.reject(refreshError);
         }
+      } else {
+        console.log('[API] Response interceptor - No refresh token available');
       }
     }
 
